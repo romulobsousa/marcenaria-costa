@@ -1,0 +1,19 @@
+.DS_Store
+Thumbs.db
+node_modules/
+.vercel
+.env
+.env.*
+*.log
+.idea/
+.vscode/
+
+# fotos originais enviadas pelo cliente (não versionar)
+assets/img/_originais/
+assets/img/*.jpeg
+assets/img/*.png
+!assets/icons/*.png
+
+_antigos/
+
+.tools/
