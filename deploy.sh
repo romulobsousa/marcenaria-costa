@@ -141,6 +141,13 @@ cat << 'DICA'
     Modify settings?            N
 DICA
 echo ""
+
+# a CLI não pede login sozinha: confere antes
+if ! $VERCEL whoami >/dev/null 2>&1; then
+  aviso "Sem login na Vercel — abrindo o navegador"
+  $VERCEL login || erro "Login na Vercel falhou."
+fi
+
 $VERCEL --prod || erro "Publicação falhou. Rode '$VERCEL login' e tente de novo."
 
 printf '\n\033[1;32m════════════════════════════════════════\033[0m\n'
