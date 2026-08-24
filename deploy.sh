@@ -36,7 +36,9 @@ ok "git $(git --version | awk '{print $3}')"
 if command -v vercel >/dev/null; then
   VERCEL="vercel"; ok "Vercel CLI instalada"
 else
-  VERCEL="npx --yes vercel@latest"; ok "Vercel CLI via npx (não precisa instalar)"
+  mkdir -p .tools/npm-cache
+  export npm_config_cache="$PWD/.tools/npm-cache"
+  VERCEL="npx --yes vercel@latest"; ok "Vercel CLI via npx (cache próprio, sem sudo)"
 fi
 
 # ---- gh: usa o instalado, senão instala sozinho (brew ou download direto) ----
@@ -94,10 +96,30 @@ else
       echo "  Vai abrir o navegador. Escolha: GitHub.com → HTTPS → Login with a web browser"
       "$GH" auth login
     }
-    azul "Criando o repositório no GitHub"
-    "$GH" repo create "$REPO" $VISIBILIDADE --source=. --remote=origin --push \
-      && ok "Repositório criado e código enviado" \
-      || aviso "Não deu para criar o repo — seguindo para a Vercel"
+    azul "Conectando ao GitHub"
+    USUARIO="$("$GH" api user --jq .login 2>/dev/null)"
+
+    if "$GH" repo view "$REPO" >/dev/null 2>&1; then
+      ok "Repositório $REPO já existe — vou usar ele"
+      git remote add origin "https://github.com/$USUARIO/$REPO.git" 2>/dev/null
+    else
+      "$GH" repo create "$REPO" $VISIBILIDADE --source=. --remote=origin >/dev/null 2>&1 \
+        && ok "Repositório criado" \
+        || aviso "Não deu para criar o repositório"
+    fi
+
+    if git remote get-url origin >/dev/null 2>&1; then
+      azul "Enviando os arquivos"
+      if git push -u origin main 2>/dev/null; then
+        ok "Código no GitHub: https://github.com/$USUARIO/$REPO"
+      else
+        aviso "O repositório remoto tem conteúdo diferente — juntando os dois"
+        git pull --rebase origin main >/dev/null 2>&1
+        git push -u origin main 2>/dev/null \
+          && ok "Código no GitHub: https://github.com/$USUARIO/$REPO" \
+          || aviso "Push falhou — o site sobe na Vercel do mesmo jeito"
+      fi
+    fi
   else
     aviso "Sem a gh. Para ligar o GitHub depois:"
     echo "     1. Crie um repo vazio em https://github.com/new  (nome: $REPO)"
