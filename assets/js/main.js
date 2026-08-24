@@ -14,7 +14,22 @@ const CONFIG = {
 
   // Deixe como está para desligar. Para ligar, coloque o ID entre as aspas.
   metaPixelId: '',   // ex.: '123456789012345'
-  ga4Id: ''          // ex.: 'G-XXXXXXXXXX'
+  ga4Id: '',         // ex.: 'G-XXXXXXXXXX'
+
+  // ---- Google Ads ----
+  // A tag base já está no <head> do index.html.
+  googleAdsId: 'AW-18133557925',
+
+  // Rótulo da AÇÃO DE CONVERSÃO criada no Google Ads.
+  // Pegue em: Metas > Conversões > sua ação > "Instalar a tag por conta própria".
+  // No trecho send_to: 'AW-18133557925/AbC-dEfGhIj', copie só o que vem DEPOIS da barra.
+  // Enquanto estiver vazio, o site funciona normal, só não registra a conversão.
+  conversaoWhatsapp: '3QpWCJvdkeccEKXF4MZD',
+
+  // Quanto vale um clique no WhatsApp para você. Serve para o Google
+  // otimizar por retorno, não só por volume. Ver observação no README.
+  valorConversao: 1.0,
+  moedaConversao: 'BRL'
 };
 
 /* ========================================================= */
@@ -31,8 +46,25 @@ const CONFIG = {
   }
 
   function rastrear(nome, dados) {
+    // Meta
     try { if (window.fbq) window.fbq('track', 'Contact', dados || {}); } catch (e) {}
-    try { if (window.gtag) window.gtag('event', 'clique_whatsapp', Object.assign({ origem: nome }, dados || {})); } catch (e) {}
+
+    // Evento comum (GA4 e relatórios)
+    try {
+      if (window.gtag) window.gtag('event', 'clique_whatsapp', Object.assign({ origem: nome }, dados || {}));
+    } catch (e) {}
+
+    // Conversão do Google Ads — só dispara com o rótulo preenchido no CONFIG
+    try {
+      if (window.gtag && CONFIG.googleAdsId && CONFIG.conversaoWhatsapp) {
+        window.gtag('event', 'conversion', {
+          send_to: CONFIG.googleAdsId + '/' + CONFIG.conversaoWhatsapp,
+          value: CONFIG.valorConversao,
+          currency: CONFIG.moedaConversao,
+          origem: nome
+        });
+      }
+    } catch (e) {}
   }
 
   $$('[data-zap]').forEach(function (el) {
@@ -298,13 +330,17 @@ const CONFIG = {
   }
 
   if (CONFIG.ga4Id) {
-    const s = document.createElement('script');
-    s.async = true;
-    s.src = 'https://www.googletagmanager.com/gtag/js?id=' + CONFIG.ga4Id;
-    document.head.appendChild(s);
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = function () { window.dataLayer.push(arguments); };
-    window.gtag('js', new Date());
+    // A tag do Google Ads no <head> já carregou o gtag.js e criou window.gtag.
+    // Aqui só registramos a propriedade do GA4 em cima dela.
+    if (!window.gtag) {
+      const s = document.createElement('script');
+      s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=' + CONFIG.ga4Id;
+      document.head.appendChild(s);
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { window.dataLayer.push(arguments); };
+      window.gtag('js', new Date());
+    }
     window.gtag('config', CONFIG.ga4Id);
   }
 })();
