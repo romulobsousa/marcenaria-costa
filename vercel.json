@@ -4,6 +4,19 @@
   "trailingSlash": false,
   "headers": [
     {
+      "source": "/agenda/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
       "source": "/orcamentos/(.*)",
       "headers": [
         {
