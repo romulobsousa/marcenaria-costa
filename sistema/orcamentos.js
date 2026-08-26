@@ -293,25 +293,87 @@
     }).catch(function () {});
   });
 
+  /* Anexar arquivo por link do WhatsApp não existe — o wa.me só leva texto.
+     Dois caminhos, nesta ordem:
+       1. Celular: navigator.share manda o PDF como arquivo de verdade.
+       2. Computador: sobe o PDF e põe o link na mensagem. */
+  function enviarWhatsApp(o, pdf) {
+    var tel = String(o.cliente_telefone || '').replace(/\D/g, '');
+    if (tel.length <= 11) tel = '55' + tel;
+    var emp = CFG.empresa || {};
+    var primeiro = o.cliente_nome ? o.cliente_nome.split(' ')[0] : '';
+
+    function texto(link) {
+      return 'Olá' + (primeiro ? ', ' + primeiro : '') + '! ' +
+        'Segue o orçamento nº ' + String(o.numero).padStart(3, '0') +
+        ' da ' + (emp.nome || 'marcenaria') + '.\n\n' +
+        'Valor total: ' + dinheiro(pdf.total) + '\n' +
+        (o.prazo_entrega ? 'Prazo: ' + o.prazo_entrega + '\n' : '') +
+        (o.forma_pagamento ? 'Pagamento: ' + o.forma_pagamento + '\n' : '') +
+        (link ? '\nO orçamento completo está aqui:\n' + link + '\n' : '') +
+        '\nQualquer dúvida é só chamar!';
+    }
+
+    var arquivo = new File([pdf.blob], pdf.nome, { type: 'application/pdf' });
+
+    // ---- caminho 1: compartilhar o arquivo (celular) ----
+    if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+      return navigator.share({
+        files: [arquivo],
+        title: 'Orçamento ' + String(o.numero).padStart(3, '0'),
+        text: texto(null)
+      }).then(function () {
+        App.avisar('Escolha o WhatsApp e o contato para enviar');
+      }).catch(function (e) {
+        if (e && e.name === 'AbortError') return;   // desistiu, sem alarde
+        return viaLink(o, pdf, texto, tel);
+      });
+    }
+
+    // ---- caminho 2: link do PDF (computador) ----
+    return viaLink(o, pdf, texto, tel);
+  }
+
+  function viaLink(o, pdf, texto, tel) {
+    App.carregando(true);
+    var caminho = App.usuario.id + '/' + o.id + '.pdf';
+
+    return App.sb.storage.from('orcamentos')
+      .upload(caminho, pdf.blob, { contentType: 'application/pdf', upsert: true })
+      .then(function (r) {
+        if (r.error) throw r.error;
+        var pub = App.sb.storage.from('orcamentos').getPublicUrl(caminho);
+        var link = pub && pub.data && pub.data.publicUrl;
+        App.carregando(false);
+        window.open('https://wa.me/' + tel + '?text=' + encodeURIComponent(texto(link)),
+                    '_blank', 'noopener');
+        App.avisar('Mensagem pronta com o link do orçamento');
+      })
+      .catch(function (e) {
+        App.carregando(false);
+        var m = (e && e.message) || '';
+        if (/Bucket not found/i.test(m)) {
+          App.avisar('Falta criar a guarda de PDFs: rode o banco-arquivos.sql no Supabase.', 'erro');
+        } else {
+          App.avisar('Não consegui subir o PDF (' + m + '). Vou baixá-lo para você anexar.', 'erro');
+        }
+        // não deixa o usuário na mão: baixa o arquivo e abre a conversa
+        try { window.gerarPDF(o); } catch (x) {}
+        window.open('https://wa.me/' + tel + '?text=' + encodeURIComponent(texto(null)),
+                    '_blank', 'noopener');
+      });
+  }
+
   $('#btn-zap').addEventListener('click', function () {
     garantirSalvo().then(function (o) {
       var tel = String(o.cliente_telefone || '').replace(/\D/g, '');
       if (!tel) { App.avisar('Coloque o WhatsApp do cliente para enviar.', 'erro'); $('#c-telefone').focus(); return; }
-      if (tel.length <= 11) tel = '55' + tel;
 
-      var r;
-      try { r = window.gerarPDF(o); } catch (e) { App.avisar(e.message, 'erro'); return; }
+      var pdf;
+      try { pdf = window.gerarPDF(o, { retornarBlob: true }); }
+      catch (e) { App.avisar(e.message, 'erro'); return; }
 
-      var emp = CFG.empresa || {};
-      var msg = 'Olá' + (o.cliente_nome ? ', ' + o.cliente_nome.split(' ')[0] : '') + '! ' +
-        'Segue o orçamento nº ' + String(o.numero).padStart(3, '0') + ' da ' + (emp.nome || 'marcenaria') + '.\n\n' +
-        'Valor total: ' + dinheiro(r.total) + '\n' +
-        (o.prazo_entrega ? 'Prazo: ' + o.prazo_entrega + '\n' : '') +
-        (o.forma_pagamento ? 'Pagamento: ' + o.forma_pagamento + '\n' : '') +
-        '\nO PDF com todos os detalhes está anexado. Qualquer dúvida é só chamar!';
-
-      window.open('https://wa.me/' + tel + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
-      App.avisar('PDF baixado — anexe na conversa que abriu');
+      enviarWhatsApp(o, pdf);
     }).catch(function () {});
   });
 
