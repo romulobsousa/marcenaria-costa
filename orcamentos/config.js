@@ -18,8 +18,8 @@
 
 window.CONFIG_ORCAMENTO = {
 
-  SUPABASE_URL:   'COLE_AQUI_A_URL',
-  SUPABASE_CHAVE: 'COLE_AQUI_A_CHAVE_ANON',
+  SUPABASE_URL:   'https://obbqlnjnicvngexkpypx.supabase.co',
+  SUPABASE_CHAVE: 'sb_publishable_zQL334gzjN9yDMOfe396NQ_VwFoc2fe',
 
   /* ---- dados que saem no PDF ---- */
   empresa: {
