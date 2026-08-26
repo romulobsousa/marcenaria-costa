@@ -27,6 +27,11 @@
 
 * { box-sizing: border-box; }
 
+/* O atributo hidden precisa vencer qualquer display de classe.
+   Sem isto, .entrada { display: grid } mantém a tela de login visível
+   por cima das outras mesmo com hidden aplicado. */
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
   background: var(--ground);
