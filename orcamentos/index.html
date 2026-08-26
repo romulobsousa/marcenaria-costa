@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Orçamentos · Marcenaria Costa</title>
+<link rel="icon" href="../assets/icons/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<section class="entrada" id="tela-login" hidden>
+  <form class="entrada__caixa" id="form-login">
+    <h1 class="entrada__marca">Marcenaria Costa</h1>
+    <p class="entrada__sub">Orçamentos</p>
+
+    <label class="campo">
+      <span class="campo__rot">E-mail</span>
+      <input type="email" id="login-email" autocomplete="username" required>
+    </label>
+    <label class="campo">
+      <span class="campo__rot">Senha</span>
+      <input type="password" id="login-senha" autocomplete="current-password" required>
+    </label>
+
+    <p class="erro" id="login-erro" hidden></p>
+    <button class="btn btn--cheio" type="submit" id="login-btn">Entrar</button>
+  </form>
+</section>
+
+<!-- ================= LISTA ================= -->
+<section class="tela" id="tela-lista" hidden>
+  <header class="topo">
+    <div>
+      <h1 class="topo__titulo">Orçamentos</h1>
+      <p class="topo__sub" id="lista-resumo"></p>
+    </div>
+    <div class="topo__acoes">
+      <button class="btn btn--fantasma" type="button" id="btn-sair">Sair</button>
+      <button class="btn" type="button" id="btn-novo">Novo orçamento</button>
+    </div>
+  </header>
+
+  <div class="filtros">
+    <input type="search" id="busca" placeholder="Buscar por cliente ou número" aria-label="Buscar">
+    <div class="pilulas" role="group" aria-label="Filtrar por situação">
+      <button type="button" data-f="todos" aria-pressed="true">Todos</button>
+      <button type="button" data-f="rascunho" aria-pressed="false">Rascunho</button>
+      <button type="button" data-f="enviado" aria-pressed="false">Enviado</button>
+      <button type="button" data-f="aprovado" aria-pressed="false">Aprovado</button>
+      <button type="button" data-f="recusado" aria-pressed="false">Recusado</button>
+    </div>
+  </div>
+
+  <div id="lista"></div>
+</section>
+
+<!-- ================= EDITOR ================= -->
+<section class="tela" id="tela-editor" hidden>
+  <header class="topo">
+    <div>
+      <button class="voltar" type="button" id="btn-voltar">← Todos os orçamentos</button>
+      <h1 class="topo__titulo" id="editor-titulo">Novo orçamento</h1>
+      <p class="topo__sub" id="editor-sub"></p>
+    </div>
+    <div class="topo__acoes">
+      <select id="sel-status" aria-label="Situação do orçamento">
+        <option value="rascunho">Rascunho</option>
+        <option value="enviado">Enviado</option>
+        <option value="aprovado">Aprovado</option>
+        <option value="recusado">Recusado</option>
+      </select>
+      <button class="btn btn--fantasma" type="button" id="btn-pdf">Baixar PDF</button>
+      <button class="btn btn--zap" type="button" id="btn-zap">Enviar no WhatsApp</button>
+    </div>
+  </header>
+
+  <div class="editor">
+    <div class="coluna">
+
+      <section class="cartao">
+        <h2 class="cartao__titulo">Cliente</h2>
+        <div class="grade-2">
+          <label class="campo">
+            <span class="campo__rot">Nome</span>
+            <input type="text" id="c-nome" placeholder="Maria Silva">
+          </label>
+          <label class="campo">
+            <span class="campo__rot">WhatsApp</span>
+            <input type="tel" id="c-telefone" placeholder="(41) 99999-9999">
+          </label>
+          <label class="campo">
+            <span class="campo__rot">E-mail <i>opcional</i></span>
+            <input type="email" id="c-email">
+          </label>
+          <label class="campo">
+            <span class="campo__rot">Endereço <i>opcional</i></span>
+            <input type="text" id="c-endereco" placeholder="Bairro, cidade">
+          </label>
+        </div>
+      </section>
+
+      <section class="cartao">
+        <div class="cartao__topo">
+          <h2 class="cartao__titulo">Móveis do orçamento</h2>
+          <button class="btn btn--pequeno" type="button" id="btn-add-item">+ Adicionar móvel</button>
+        </div>
+        <div id="itens"></div>
+        <p class="dica-vazia" id="itens-vazio" hidden>Nenhum móvel ainda. Comece adicionando o primeiro.</p>
+      </section>
+
+      <section class="cartao">
+        <h2 class="cartao__titulo">Condições</h2>
+        <div class="grade-2">
+          <label class="campo">
+            <span class="campo__rot">Prazo de entrega</span>
+            <input type="text" id="c-prazo">
+          </label>
+          <label class="campo">
+            <span class="campo__rot">Forma de pagamento</span>
+            <input type="text" id="c-pagamento">
+          </label>
+          <label class="campo">
+            <span class="campo__rot">Validade da proposta</span>
+            <div class="com-sufixo">
+              <input type="number" id="c-validade" min="1" max="180">
+              <span>dias</span>
+            </div>
+          </label>
+        </div>
+        <label class="campo">
+          <span class="campo__rot">Observações <i>saem no PDF</i></span>
+          <textarea id="c-obs" rows="3"></textarea>
+        </label>
+      </section>
+
+    </div>
+
+    <aside class="lado">
+      <section class="cartao cartao--total">
+        <h2 class="cartao__titulo">Total</h2>
+        <div class="linha-total">
+          <span>Móveis</span>
+          <strong id="t-subtotal">R$ 0,00</strong>
+        </div>
+        <label class="campo campo--desconto">
+          <span class="campo__rot">Desconto</span>
+          <div class="com-prefixo">
+            <span>R$</span>
+            <input type="number" id="c-desconto" min="0" step="0.01" value="0">
+          </div>
+        </label>
+        <div class="linha-total linha-total--grande">
+          <span>Total</span>
+          <strong id="t-total">R$ 0,00</strong>
+        </div>
+        <p class="salvo" id="estado-salvo">—</p>
+        <button class="btn btn--cheio" type="button" id="btn-salvar">Salvar</button>
+        <button class="btn btn--perigo btn--cheio" type="button" id="btn-excluir" hidden>Excluir orçamento</button>
+      </section>
+    </aside>
+  </div>
+</section>
+
+<div class="carregando" id="carregando"><span></span></div>
+<div class="aviso-flutuante" id="aviso" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="config.js"></script>
+<script src="pdf.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
