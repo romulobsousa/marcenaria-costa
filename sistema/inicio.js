@@ -75,11 +75,16 @@
   }
 
   function pintarOrcamentos() {
-    var enviados = App.orcamentos.filter(function (o) { return o.status === 'enviado'; });
+    // os que já estão na fila de cobrança não se repetem aqui
+    var naFila = {};
+    (App.filaCobranca ? App.filaCobranca() : []).forEach(function (o) { naFila[o.id] = 1; });
+    var enviados = App.orcamentos.filter(function (o) {
+      return o.status === 'enviado' && !naFila[o.id];
+    });
     var alvo = $('#hoje-orcamentos');
 
     if (!enviados.length) {
-      alvo.innerHTML = '<p class="dica-vazia">Nenhum orçamento aguardando resposta.</p>';
+      alvo.innerHTML = '<p class="dica-vazia">Nada esperando resposta fora da fila acima.</p>';
       return;
     }
 
