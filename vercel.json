@@ -4,6 +4,19 @@
   "trailingSlash": false,
   "headers": [
     {
+      "source": "/sistema/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
       "source": "/agenda/(.*)",
       "headers": [
         {
@@ -58,6 +71,28 @@
           "value": "camera=(), microphone=(), geolocation=()"
         }
       ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/orcamentos",
+      "destination": "/sistema#/orcamentos",
+      "permanent": false
+    },
+    {
+      "source": "/orcamentos/",
+      "destination": "/sistema#/orcamentos",
+      "permanent": false
+    },
+    {
+      "source": "/agenda",
+      "destination": "/sistema#/agenda",
+      "permanent": false
+    },
+    {
+      "source": "/agenda/",
+      "destination": "/sistema#/agenda",
+      "permanent": false
     }
   ]
 }
