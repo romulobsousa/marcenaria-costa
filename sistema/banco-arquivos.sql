@@ -3,17 +3,17 @@
 -- Cole no SQL Editor do Supabase e clique em RUN. Roda uma vez só.
 -- =====================================================================
 
--- Espaço onde a página e o PDF de cada orçamento ficam guardados.
+-- Espaço onde o PDF de cada orçamento fica guardado.
 -- É "público" no sentido de que o link abre sem senha — é isso que
 -- permite o cliente abrir o PDF pelo WhatsApp. O caminho do arquivo
 -- inclui o id do orçamento (um UUID), então ninguém descobre o link
 -- de outro cliente por tentativa.
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values ('orcamentos', 'orcamentos', true, 10485760, array['application/pdf','text/html'])
+values ('orcamentos', 'orcamentos', true, 10485760, array['application/pdf'])
 on conflict (id) do update
   set public = true,
       file_size_limit = 10485760,
-      allowed_mime_types = array['application/pdf','text/html'];
+      allowed_mime_types = array['application/pdf'];
 
 -- ---------------------------------------------------------------------
 -- Quem pode fazer o quê

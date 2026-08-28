@@ -2,6 +2,7 @@ User-agent: *
 Disallow: /sistema/
 Disallow: /orcamentos/
 Disallow: /agenda/
+Disallow: /p
 Allow: /
 
 Sitemap: https://www.marcenariacosta.com.br/sitemap.xml

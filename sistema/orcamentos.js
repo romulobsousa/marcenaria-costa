@@ -334,27 +334,27 @@
     return viaLink(o, pdf, texto, tel);
   }
 
+  /* A página do orçamento fica no site da marcenaria (/p?id=...), não no
+     Supabase: o Supabase entrega arquivo para baixar, não página para abrir —
+     no celular do cliente aparecia o código-fonte. O que sobe para lá é só
+     o PDF, que é arquivo mesmo. */
+  function enderecoDaPagina(o) {
+    var base = (CFG.empresa && CFG.empresa.site)
+      ? 'https://www.' + String(CFG.empresa.site).replace(/^(https?:\/\/)?(www\.)?/, '')
+      : location.origin;
+    return base + '/p?id=' + o.id;
+  }
+
   function viaLink(o, pdf, texto, tel) {
     App.carregando(true);
     var pasta = App.usuario.id + '/' + o.id;
     var loja = App.sb.storage.from('orcamentos');
 
-    // o PDF primeiro: a página precisa do link dele para o botão de baixar
     return loja.upload(pasta + '.pdf', pdf.blob,
                        { contentType: 'application/pdf', upsert: true })
       .then(function (r) {
         if (r.error) throw r.error;
-        var linkPdf = loja.getPublicUrl(pasta + '.pdf').data.publicUrl;
-
-        var html = window.gerarPaginaOrcamento(o, { linkPdf: linkPdf });
-        var blobHtml = new Blob([html], { type: 'text/html; charset=utf-8' });
-
-        return loja.upload(pasta + '.html', blobHtml,
-                           { contentType: 'text/html; charset=utf-8', upsert: true })
-          .then(function (r2) {
-            if (r2.error) throw r2.error;
-            return loja.getPublicUrl(pasta + '.html').data.publicUrl;
-          });
+        return enderecoDaPagina(o);
       })
       .then(function (link) {
         App.carregando(false);
@@ -378,8 +378,24 @@
       });
   }
 
+  /* Mandar é enviar: um orçamento ainda em rascunho não abre pelo link (o
+     banco só mostra os enviados), e não entraria na fila de cobrança. */
+  function marcarEnviado(o) {
+    if (o.status !== 'rascunho') return Promise.resolve(o);
+    return App.sb.from('orcamentos').update({ status: 'enviado' })
+      .eq('id', o.id).select().single()
+      .then(function (r) {
+        if (r.error) return o;                    // envia mesmo assim
+        atual.status = 'enviado';
+        if ($('#sel-status')) $('#sel-status').value = 'enviado';
+        App.recarregar(true);
+        return r.data;
+      })
+      .catch(function () { return o; });
+  }
+
   $('#btn-zap').addEventListener('click', function () {
-    garantirSalvo().then(function (o) {
+    garantirSalvo().then(marcarEnviado).then(function (o) {
       var tel = String(o.cliente_telefone || '').replace(/\D/g, '');
       if (!tel) { App.avisar('Coloque o WhatsApp do cliente para enviar.', 'erro'); $('#c-telefone').focus(); return; }
 
