@@ -69,6 +69,13 @@ if [ -z "$GH" ] && [ "$SO_VERCEL" -eq 0 ]; then
   [ -n "$GH" ] && ok "GitHub CLI pronta" || aviso "Não consegui instalar a gh — sigo sem o GitHub"
 fi
 
+# ============ marca de versão nos arquivos ============
+# Faz o navegador buscar o JavaScript novo em vez de servir o antigo do cache.
+if [ -f tools/versionar.py ] && command -v python3 >/dev/null; then
+  azul "Marcando a versão dos arquivos"
+  python3 tools/versionar.py
+fi
+
 # ============ GitHub ============
 if [ "$SO_VERCEL" -eq 1 ]; then
   aviso "Pulando o GitHub (--so-vercel)"
