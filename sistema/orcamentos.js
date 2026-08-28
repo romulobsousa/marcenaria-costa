@@ -336,14 +336,27 @@
 
   function viaLink(o, pdf, texto, tel) {
     App.carregando(true);
-    var caminho = App.usuario.id + '/' + o.id + '.pdf';
+    var pasta = App.usuario.id + '/' + o.id;
+    var loja = App.sb.storage.from('orcamentos');
 
-    return App.sb.storage.from('orcamentos')
-      .upload(caminho, pdf.blob, { contentType: 'application/pdf', upsert: true })
+    // o PDF primeiro: a página precisa do link dele para o botão de baixar
+    return loja.upload(pasta + '.pdf', pdf.blob,
+                       { contentType: 'application/pdf', upsert: true })
       .then(function (r) {
         if (r.error) throw r.error;
-        var pub = App.sb.storage.from('orcamentos').getPublicUrl(caminho);
-        var link = pub && pub.data && pub.data.publicUrl;
+        var linkPdf = loja.getPublicUrl(pasta + '.pdf').data.publicUrl;
+
+        var html = window.gerarPaginaOrcamento(o, { linkPdf: linkPdf });
+        var blobHtml = new Blob([html], { type: 'text/html; charset=utf-8' });
+
+        return loja.upload(pasta + '.html', blobHtml,
+                           { contentType: 'text/html; charset=utf-8', upsert: true })
+          .then(function (r2) {
+            if (r2.error) throw r2.error;
+            return loja.getPublicUrl(pasta + '.html').data.publicUrl;
+          });
+      })
+      .then(function (link) {
         App.carregando(false);
         window.open('https://wa.me/' + tel + '?text=' + encodeURIComponent(texto(link)),
                     '_blank', 'noopener');
@@ -353,11 +366,12 @@
         App.carregando(false);
         var m = (e && e.message) || '';
         if (/Bucket not found/i.test(m)) {
-          App.avisar('Falta criar a guarda de PDFs: rode o banco-arquivos.sql no Supabase.', 'erro');
+          App.avisar('Falta criar a guarda de arquivos: rode o banco-arquivos.sql no Supabase.', 'erro');
+        } else if (/mime|content.?type/i.test(m)) {
+          App.avisar('O Supabase recusou o tipo de arquivo. Rode o banco-arquivos.sql atualizado.', 'erro');
         } else {
-          App.avisar('Não consegui subir o PDF (' + m + '). Vou baixá-lo para você anexar.', 'erro');
+          App.avisar('Não consegui subir o orçamento (' + m + '). Vou baixar o PDF para você anexar.', 'erro');
         }
-        // não deixa o usuário na mão: baixa o arquivo e abre a conversa
         try { window.gerarPDF(o); } catch (x) {}
         window.open('https://wa.me/' + tel + '?text=' + encodeURIComponent(texto(null)),
                     '_blank', 'noopener');
