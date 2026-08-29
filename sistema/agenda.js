@@ -145,8 +145,8 @@
     var ehNova = !v.id;
 
     $('#painel-titulo').textContent = ehNova ? 'Nova visita' : 'Visita de ' + (v.cliente_nome || 'cliente');
-    $('#btn-excluir-visita').hidden = ehNova;
-    $('#btn-orc-da-visita').hidden = ehNova;
+    $('#btn-excluir-visita').hidden = ehNova || !App.podeApagar();
+    $('#btn-orc-da-visita').hidden = ehNova || !App.podeOrcar();
 
     $('#v-nome').value = v.cliente_nome || '';
     $('#v-telefone').value = v.cliente_telefone || '';

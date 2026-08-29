@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/sistema/estilo.css?v=f26d5b86">
+<link rel="stylesheet" href="/sistema/estilo.css?v=7ba61edb">
 </head>
 <body>
 
@@ -52,6 +52,7 @@
         <a href="#/hoje"       data-rota="hoje">Hoje</a>
         <a href="#/orcamentos" data-rota="orcamentos">Orçamentos</a>
         <a href="#/agenda"     data-rota="agenda">Agenda</a>
+        <a href="#/equipe"     data-rota="equipe" hidden>Equipe</a>
       </nav>
       <button class="btn btn--fantasma btn--pequeno" type="button" id="btn-sair">Sair</button>
     </div>
@@ -232,6 +233,28 @@
       <div id="dias"></div>
     </section>
 
+    <!-- ------------------------ EQUIPE ------------------------ -->
+    <section class="pagina" id="pg-equipe" hidden>
+      <header class="cabeca">
+        <div>
+          <h1 class="cabeca__titulo">Equipe</h1>
+          <p class="cabeca__sub" id="equipe-resumo"></p>
+        </div>
+      </header>
+
+      <section class="cartao cartao--recado">
+        <h2 class="cartao__titulo">Como entra gente nova</h2>
+        <ol class="passos">
+          <li>No Supabase, <strong>Authentication → Users → Add user</strong>: e-mail e senha da pessoa, com <strong>Auto Confirm User</strong> marcado.</li>
+          <li>A pessoa aparece nesta lista <strong>esperando liberação</strong>.</li>
+          <li>Escolha o papel dela aqui e ligue o acesso.</li>
+        </ol>
+        <p class="passos__nota">Senha quem cria é você, no Supabase — o sistema nunca guarda senha de ninguém.</p>
+      </section>
+
+      <div id="equipe-lista"></div>
+    </section>
+
   </main>
 </div>
 
@@ -298,6 +321,16 @@
   </div>
 </div>
 
+<!-- ============ CONTA AINDA SEM ACESSO ============ -->
+<section class="entrada" id="tela-espera" hidden>
+  <div class="entrada__caixa entrada__caixa--recado">
+    <h1 class="espera__titulo">Sua conta está esperando liberação</h1>
+    <p class="espera__texto">O administrador da Marcenaria Costa precisa liberar seu acesso e escolher o que você vai enxergar aqui dentro. Assim que ele fizer isso, é só entrar de novo.</p>
+    <p class="espera__quem" id="espera-email"></p>
+    <button class="btn btn--fantasma btn--cheio" type="button" id="btn-sair-espera">Sair</button>
+  </div>
+</section>
+
 <div class="carregando" id="carregando"><span></span></div>
 <div class="aviso-flutuante" id="aviso" role="status" aria-live="polite"></div>
 
@@ -306,10 +339,11 @@
 <script src="/sistema/config.js?v=db571d05"></script>
 <script src="/sistema/logo-dados.js?v=bde4a42a"></script>
 <script src="/sistema/pdf.js?v=b0af39e2"></script>
-<script src="/sistema/nucleo.js?v=a5866b67"></script>
-<script src="/sistema/orcamentos.js?v=7937ca3e"></script>
-<script src="/sistema/agenda.js?v=22799a98"></script>
+<script src="/sistema/nucleo.js?v=a607dd31"></script>
+<script src="/sistema/orcamentos.js?v=954ccc79"></script>
+<script src="/sistema/agenda.js?v=d986d49d"></script>
 <script src="/sistema/cobranca.js?v=e0e8510c"></script>
+<script src="/sistema/equipe.js?v=58ad17e7"></script>
 <script src="/sistema/inicio.js?v=b4c48f81"></script>
 </body>
 </html>

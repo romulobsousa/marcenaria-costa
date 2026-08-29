@@ -12,6 +12,7 @@ window.App = (function () {
     cfg: CFG,
     sb: null,
     usuario: null,
+    papel: null,          // admin | marceneiro | vendedor | montador
     orcamentos: [],
     visitas: [],
     aoTrocarRota: [],     // callbacks por rota
@@ -80,8 +81,30 @@ window.App = (function () {
     hoje:       '#pg-hoje',
     orcamentos: '#pg-orcamentos',
     editor:     '#pg-editor',
-    agenda:     '#pg-agenda'
+    agenda:     '#pg-agenda',
+    equipe:     '#pg-equipe'
   };
+
+  /* O que cada papel alcança. O sistema esconde o que não é da pessoa,
+     mas quem manda de verdade é a regra no banco: mesmo que alguém force
+     o endereço na barra, o banco não devolve o que não é dela. */
+  var ALCANCE = {
+    admin:      ['hoje', 'orcamentos', 'editor', 'agenda', 'equipe'],
+    marceneiro: ['hoje', 'orcamentos', 'editor', 'agenda'],
+    vendedor:   ['hoje', 'orcamentos', 'editor', 'agenda'],
+    montador:   ['agenda']
+  };
+
+  App.pode = function (rota) {
+    var lista = ALCANCE[App.papel] || [];
+    return lista.indexOf(rota) >= 0;
+  };
+
+  // atalhos de leitura usados pelas telas
+  App.ehAdmin   = function () { return App.papel === 'admin'; };
+  App.podeApagar = function () { return App.papel === 'admin' || App.papel === 'marceneiro'; };
+  App.podeOrcar  = function () { return App.pode('orcamentos'); };
+  App.podeAgendar = function () { return !!App.papel && App.papel !== 'montador'; };
 
   App.rotaAtual = 'hoje';
 
@@ -92,6 +115,7 @@ window.App = (function () {
 
   function aplicarRota(rota) {
     if (!PAGINAS[rota]) rota = 'hoje';
+    if (App.papel && !App.pode(rota)) rota = (ALCANCE[App.papel] || ['hoje'])[0];
     App.rotaAtual = rota;
 
     Object.keys(PAGINAS).forEach(function (k) {
@@ -117,7 +141,10 @@ window.App = (function () {
   App.recarregar = function (silencioso) {
     if (!silencioso) App.carregando(true);
 
-    var pOrc = App.sb.from('orcamentos').select('*').order('criado_em', { ascending: false });
+    // montador não enxerga orçamento: nem pede ao banco
+    var pOrc = App.podeOrcar()
+      ? App.sb.from('orcamentos').select('*').order('criado_em', { ascending: false })
+      : Promise.resolve({ data: [], error: null });
     var de  = App.paraISO(App.somaDias(new Date(), -120));
     var ate = App.paraISO(App.somaDias(new Date(), 365));
     var pVis = App.sb.from('visitas').select('*').gte('data', de).lte('data', ate)
@@ -146,14 +173,67 @@ window.App = (function () {
   /* ---------------- entrar e sair ---------------- */
   function mostrarLogin() {
     App.$('#tela-login').hidden = false;
+    App.$('#tela-espera').hidden = true;
     App.$('#app').hidden = true;
   }
-  function mostrarApp() {
+
+  function mostrarEspera(acesso) {
     App.$('#tela-login').hidden = true;
-    App.$('#app').hidden = false;
-    aplicarRota((location.hash || '').replace(/^#\//, '') || 'hoje');
-    App.recarregar();
+    App.$('#app').hidden = true;
+    App.$('#tela-espera').hidden = false;
+    App.$('#espera-email').textContent =
+      (acesso && acesso.email) || (App.usuario && App.usuario.email) || '';
   }
+
+  /* Quem entrou, e o que essa pessoa alcança. Sem papel liberado o
+     sistema não abre — e não é só a tela: o banco também não devolve
+     nada para quem não está na equipe. */
+  function abrirConformePapel() {
+    return App.sb.rpc('meu_acesso').then(function (r) {
+      if (r.error) throw r.error;
+      var acesso = r.data;
+
+      if (!acesso || !acesso.ativo) { App.papel = null; mostrarEspera(acesso); return; }
+
+      App.papel = acesso.papel;
+      App.nome  = acesso.nome || acesso.email || '';
+
+      App.$('#tela-login').hidden = true;
+      App.$('#tela-espera').hidden = true;
+      App.$('#app').hidden = false;
+      ajustarMenu();
+
+      aplicarRota((location.hash || '').replace(/^#\//, '') || (ALCANCE[App.papel] || ['hoje'])[0]);
+      if (App.carregarEquipe) App.carregarEquipe();
+      App.recarregar();
+    }).catch(function (e) {
+      var m = (e && e.message) || '';
+      if (/meu_acesso.*does not exist|function public\.meu_acesso/i.test(m)) {
+        // banco antigo, sem a tabela de equipe: segue como antes
+        App.papel = 'admin';
+        App.$('#tela-login').hidden = true;
+        App.$('#tela-espera').hidden = true;
+        App.$('#app').hidden = false;
+        ajustarMenu();
+        aplicarRota((location.hash || '').replace(/^#\//, '') || 'hoje');
+        App.recarregar();
+        return;
+      }
+      App.avisar(App.textoErro(e), 'erro');
+      mostrarLogin();
+    });
+  }
+
+  function ajustarMenu() {
+    App.$$('.menu a').forEach(function (a) {
+      a.hidden = !App.pode(a.dataset.rota);
+    });
+    document.body.setAttribute('data-papel', App.papel || '');
+    var nova = App.$('#btn-nova');
+    if (nova) nova.hidden = !App.podeAgendar();
+  }
+
+  function mostrarApp() { return abrirConformePapel(); }
 
   App.$('#form-login').addEventListener('submit', function (e) {
     e.preventDefault();
@@ -179,11 +259,16 @@ window.App = (function () {
     });
   });
 
+  App.$('#btn-sair-espera').addEventListener('click', function () {
+    App.sb.auth.signOut().then(function () { App.usuario = null; App.papel = null; mostrarLogin(); });
+  });
+
   App.$('#btn-sair').addEventListener('click', function () {
     if (App.sujo && !confirm('Há alterações não salvas. Sair mesmo assim?')) return;
     App.carregando(true);
     App.sb.auth.signOut().then(function () {
-      App.usuario = null; App.orcamentos = []; App.visitas = [];
+      App.usuario = null; App.papel = null; App.equipe = [];
+      App.orcamentos = []; App.visitas = [];
       App.carregando(false);
       mostrarLogin();
     });
@@ -219,7 +304,7 @@ window.App = (function () {
     }).catch(mostrarLogin);
 
     App.sb.auth.onAuthStateChange(function (ev) {
-      if (ev === 'SIGNED_OUT') { App.usuario = null; mostrarLogin(); }
+      if (ev === 'SIGNED_OUT') { App.usuario = null; App.papel = null; mostrarLogin(); }
     });
   };
 

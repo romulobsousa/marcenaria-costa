@@ -14,6 +14,12 @@
 
   var ROTULO = { rascunho: 'Rascunho', enviado: 'Enviado', aprovado: 'Aprovado', recusado: 'Recusado' };
 
+  /* com a equipe compartilhando a lista, vale dizer de quem é cada orçamento */
+  function quem(o) {
+    var nome = App.nomeDe ? App.nomeDe(o.user_id) : '';
+    return nome ? 'por ' + nome : '';
+  }
+
   /* ---------------- lista ---------------- */
   function pintarLista() {
     var alvo = $('#lista');
@@ -49,7 +55,8 @@
         '<div class="item-lista__meio">' +
           '<div class="item-lista__cliente' + (o.cliente_nome ? '' : ' item-lista__cliente--vazio') + '">' +
             esc(o.cliente_nome || 'Sem cliente') + '</div>' +
-          '<div class="item-lista__resumo">' + data + '  ·  ' + n + (n === 1 ? ' móvel' : ' móveis') + '</div>' +
+          '<div class="item-lista__resumo">' + data + '  ·  ' + n + (n === 1 ? ' móvel' : ' móveis') +
+            (quem(o) ? '  ·  ' + esc(quem(o)) : '') + '</div>' +
         '</div>' +
         '<span class="marca-status marca-status--' + o.status + '">' + ROTULO[o.status] + '</span>' +
         '<span class="item-lista__valor">' + dinheiro(App.totalOrcamento(o)) + '</span>' +
@@ -116,7 +123,7 @@
     $('#editor-titulo').textContent = ehNovo ? 'Novo orçamento' : 'Orçamento ' + String(o.numero).padStart(3, '0');
     $('#editor-sub').textContent = ehNovo ? 'Ainda não salvo'
       : 'Criado em ' + new Date(o.criado_em).toLocaleDateString('pt-BR');
-    $('#btn-excluir').hidden = ehNovo;
+    $('#btn-excluir').hidden = ehNovo || !App.podeApagar();
 
     $('#c-nome').value = o.cliente_nome || '';
     $('#c-telefone').value = o.cliente_telefone || '';
@@ -251,7 +258,7 @@
       App.sujo = false;
       $('#editor-titulo').textContent = 'Orçamento ' + String(r.data.numero).padStart(3, '0');
       $('#editor-sub').textContent = 'Criado em ' + new Date(r.data.criado_em).toLocaleDateString('pt-BR');
-      $('#btn-excluir').hidden = false;
+      $('#btn-excluir').hidden = !App.podeApagar();
       $('#estado-salvo').textContent = 'Salvo às ' +
         new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
       App.avisar('Orçamento salvo');
@@ -347,7 +354,9 @@
 
   function viaLink(o, pdf, texto, tel) {
     App.carregando(true);
-    var pasta = App.usuario.id + '/' + o.id;
+    // a pasta é a de quem CRIOU o orçamento, não a de quem está enviando:
+    // é esse caminho que a página do cliente procura para o botão de PDF
+    var pasta = (o.user_id || App.usuario.id) + '/' + o.id;
     var loja = App.sb.storage.from('orcamentos');
 
     return loja.upload(pasta + '.pdf', pdf.blob,
