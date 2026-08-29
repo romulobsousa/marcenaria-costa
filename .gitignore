@@ -14,7 +14,9 @@ assets/img/*.jpeg
 assets/img/*.png
 !assets/icons/*.png
 
-_antigos/
+# a logomarca é da marca, não é foto de cliente: essa vai junto
+!assets/img/logo.jpeg
+!assets/img/logo.png
+!assets/img/logo-marca.png
 
 .tools/
-.env*

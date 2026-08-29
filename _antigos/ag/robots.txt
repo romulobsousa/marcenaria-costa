@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /orcamentos/
+Allow: /
+
+Sitemap: https://www.marcenariacosta.com.br/sitemap.xml

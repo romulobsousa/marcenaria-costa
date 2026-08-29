@@ -37,14 +37,6 @@ window.gerarPDF = (function () {
 
   function limpaTel(t) { return String(t || '').replace(/\D/g, ''); }
 
-  /* o cliente lê este PDF: telefone sai escrito como se fala */
-  function telBonito(t) {
-    var n = limpaTel(t);
-    if (n.length === 11) return '(' + n.slice(0,2) + ') ' + n.slice(2,7) + '-' + n.slice(7);
-    if (n.length === 10) return '(' + n.slice(0,2) + ') ' + n.slice(2,6) + '-' + n.slice(6);
-    return String(t || '');
-  }
-
   return function gerarPDF(orc, opcoes) {
     opcoes = opcoes || {};
     var emp = (window.CONFIG_ORCAMENTO && window.CONFIG_ORCAMENTO.empresa) || {};
@@ -55,50 +47,27 @@ window.gerarPDF = (function () {
     var y = 0;
 
     /* ---------------- cabeçalho ---------------- */
-    /* A logomarca vem embutida em logo-dados.js. Se por algum motivo ela
-       não estiver ali, o nome escrito entra no lugar e o PDF sai igual. */
-    var logo = window.LOGO_ORCAMENTO;
-    var alturaTopo = logo ? 128 : 108;
-
     doc.setFillColor(FUNDO_SUAVE[0], FUNDO_SUAVE[1], FUNDO_SUAVE[2]);
-    doc.rect(0, 0, L, alturaTopo, 'F');
+    doc.rect(0, 0, L, 108, 'F');
     doc.setFillColor(LATAO[0], LATAO[1], LATAO[2]);
     doc.rect(0, 0, L, 3, 'F');
 
-    var yContato = 76;
+    doc.setFont('times', 'bold');
+    doc.setFontSize(21);
+    doc.setTextColor(TINTA[0], TINTA[1], TINTA[2]);
+    doc.text(emp.nome || 'Marcenaria', M, 46);
 
-    if (logo) {
-      var larguraLogo = 112;
-      var alturaLogo = larguraLogo * logo.altura / logo.largura;
-      try {
-        doc.addImage(logo.dados, 'JPEG', M, 22, larguraLogo, alturaLogo);
-        yContato = 22 + alturaLogo + 16;
-      } catch (e) {
-        logo = null;                      // deu errado: cai no nome escrito
-      }
-    }
-
-    if (!logo) {
-      doc.setFont('times', 'bold');
-      doc.setFontSize(21);
-      doc.setTextColor(TINTA[0], TINTA[1], TINTA[2]);
-      doc.text(emp.nome || 'Marcenaria', M, 46);
-
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8.5);
-      doc.setTextColor(TINTA_3[0], TINTA_3[1], TINTA_3[2]);
-      doc.text((emp.subtitulo || '') + (emp.cidade ? '  ·  ' + emp.cidade : ''), M, 62);
-    }
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(TINTA_3[0], TINTA_3[1], TINTA_3[2]);
+    doc.text((emp.subtitulo || '') + (emp.cidade ? '  ·  ' + emp.cidade : ''), M, 62);
 
     var contato = [];
     if (emp.telefone) contato.push(emp.telefone);
     if (emp.site) contato.push(emp.site);
     if (emp.email) contato.push(emp.email);
     if (emp.documento) contato.push(emp.documento);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8.5);
-    doc.setTextColor(TINTA_3[0], TINTA_3[1], TINTA_3[2]);
-    doc.text(contato.join('   ·   '), M, yContato);
+    doc.text(contato.join('   ·   '), M, 76);
 
     // bloco do número, à direita
     doc.setFont('helvetica', 'bold');
@@ -116,7 +85,7 @@ window.gerarPDF = (function () {
     doc.setTextColor(TINTA_3[0], TINTA_3[1], TINTA_3[2]);
     doc.text(dataBR(orc.criado_em), L - M, 76, { align: 'right' });
 
-    y = alturaTopo + 32;
+    y = 140;
 
     /* ---------------- cliente ---------------- */
     doc.setFont('helvetica', 'bold');
@@ -135,7 +104,7 @@ window.gerarPDF = (function () {
     doc.setFontSize(9);
     doc.setTextColor(TINTA_2[0], TINTA_2[1], TINTA_2[2]);
     var dadosCli = [];
-    if (orc.cliente_telefone) dadosCli.push(telBonito(orc.cliente_telefone));
+    if (orc.cliente_telefone) dadosCli.push(orc.cliente_telefone);
     if (orc.cliente_email) dadosCli.push(orc.cliente_email);
     if (orc.cliente_endereco) dadosCli.push(orc.cliente_endereco);
     if (dadosCli.length) { doc.text(dadosCli.join('   ·   '), M, y); y += 14; }

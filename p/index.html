@@ -36,7 +36,9 @@ body{margin:0;background:var(--ground);color:var(--ink);
 .folha{max-width:640px;margin:0 auto;padding:0 18px 56px}
 
 .topo{padding:26px 0 20px;border-bottom:3px solid var(--latao);margin-bottom:22px}
-.marca{font-family:Fraunces,Georgia,serif;font-size:1.55rem;font-weight:600;margin:0;letter-spacing:-.01em}
+.marca{font-family:Fraunces,Georgia,serif;font-size:1.55rem;font-weight:600;margin:0;letter-spacing:-.01em;line-height:0}
+.marca img{width:100%;max-width:186px;height:auto}
+@media(prefers-color-scheme:dark){.marca img{background:#f7f4ee;padding:9px 13px;border-radius:10px}}
 .marca__sub{color:var(--ink-3);font-size:.82rem;margin:3px 0 0}
 .selo{display:inline-block;margin-top:14px;background:var(--latao-bg);color:var(--latao);
   font-size:.72rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
@@ -188,10 +190,12 @@ h2.secao{font-family:Inter,sans-serif;font-size:.72rem;font-weight:600;letter-sp
     var html = '<div class="folha">';
 
     html += '<header class="topo">' +
-      '<h1 class="marca">' + esc(emp.nome || 'Marcenaria') + '</h1>' +
-      (emp.subtitulo || emp.cidade
-        ? '<p class="marca__sub">' + esc(emp.subtitulo || '') +
-          (emp.cidade ? (emp.subtitulo ? ' · ' : '') + esc(emp.cidade) : '') + '</p>' : '') +
+      '<h1 class="marca"><picture>' +
+        '<source srcset="/assets/img/logo.webp" type="image/webp">' +
+        '<img src="/assets/img/logo.png" alt="' + esc(emp.nome || 'Marcenaria') + '" width="520" height="369">' +
+      '</picture></h1>' +
+      /* a logo já diz "móveis sob medida"; aqui basta a cidade */
+      (emp.cidade ? '<p class="marca__sub">' + esc(emp.cidade) + '</p>' : '') +
       '<span class="selo">Orçamento</span>' +
       '<p class="num-grande">Nº ' + num + '</p>' +
       '<p class="data">' + dataBR(o.criado_em) + '</p>' +
