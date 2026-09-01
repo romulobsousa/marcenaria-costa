@@ -14,6 +14,12 @@
 
   var ROTULO = { rascunho: 'Rascunho', enviado: 'Enviado', aprovado: 'Aprovado', recusado: 'Recusado' };
 
+  /* como o orçamento aparece no histórico */
+  function rotulo(o) {
+    return 'Orçamento ' + String(o.numero || 0).padStart(3, '0') +
+           (o.cliente_nome ? ' · ' + o.cliente_nome : '');
+  }
+
   /* com a equipe compartilhando a lista, vale dizer de quem é cada orçamento */
   function quem(o) {
     var nome = App.nomeDe ? App.nomeDe(o.user_id) : '';
@@ -295,7 +301,10 @@
 
   $('#btn-pdf').addEventListener('click', function () {
     garantirSalvo().then(function (o) {
-      try { App.avisar('PDF gerado: ' + window.gerarPDF(o).nome); }
+      try {
+        App.avisar('PDF gerado: ' + window.gerarPDF(o).nome);
+        App.registrar('orcamento_pdf', rotulo(o), '', o.id);
+      }
       catch (e) { App.avisar(e.message, 'erro'); }
     }).catch(function () {});
   });
@@ -412,6 +421,7 @@
       try { pdf = window.gerarPDF(o, { retornarBlob: true }); }
       catch (e) { App.avisar(e.message, 'erro'); return; }
 
+      App.registrar('orcamento_whatsapp', rotulo(o), 'para ' + (o.cliente_telefone || ''), o.id);
       enviarWhatsApp(o, pdf);
     }).catch(function () {});
   });

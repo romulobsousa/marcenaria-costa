@@ -82,14 +82,15 @@ window.App = (function () {
     orcamentos: '#pg-orcamentos',
     editor:     '#pg-editor',
     agenda:     '#pg-agenda',
-    equipe:     '#pg-equipe'
+    equipe:     '#pg-equipe',
+    historico:  '#pg-historico'
   };
 
   /* O que cada papel alcança. O sistema esconde o que não é da pessoa,
      mas quem manda de verdade é a regra no banco: mesmo que alguém force
      o endereço na barra, o banco não devolve o que não é dela. */
   var ALCANCE = {
-    admin:      ['hoje', 'orcamentos', 'editor', 'agenda', 'equipe'],
+    admin:      ['hoje', 'orcamentos', 'editor', 'agenda', 'equipe', 'historico'],
     marceneiro: ['hoje', 'orcamentos', 'editor', 'agenda'],
     vendedor:   ['hoje', 'orcamentos', 'editor', 'agenda'],
     montador:   ['agenda']
@@ -161,6 +162,17 @@ window.App = (function () {
       if (!silencioso) App.carregando(false);
       App.avisar(App.textoErro(e), 'erro');
     });
+  };
+
+  /* Registra no histórico o que o banco não tem como saber sozinho:
+     entrar, sair, mandar no WhatsApp, baixar o PDF. O resto (orçamento
+     criado, visita remarcada, acesso liberado) é anotado pelo próprio
+     banco, então fica registrado mesmo que não passe por aqui. */
+  App.registrar = function (acao, alvo, detalhe, alvoId) {
+    if (!App.sb) return Promise.resolve();
+    return App.sb.rpc('anota', {
+      p_acao: acao, p_alvo: alvo || '', p_detalhe: detalhe || '', p_alvo_id: alvoId || null
+    }).then(function () {}).catch(function () {});   // histórico nunca atrapalha o trabalho
   };
 
   App.totalOrcamento = function (o) {
@@ -249,6 +261,7 @@ window.App = (function () {
       if (r.error) throw r.error;
       App.usuario = r.data.user;
       App.$('#login-senha').value = '';
+      App.registrar('entrou', '', '');
       mostrarApp();
     }).catch(function (e) {
       erro.textContent = App.textoErro(e);
@@ -266,7 +279,9 @@ window.App = (function () {
   App.$('#btn-sair').addEventListener('click', function () {
     if (App.sujo && !confirm('Há alterações não salvas. Sair mesmo assim?')) return;
     App.carregando(true);
-    App.sb.auth.signOut().then(function () {
+    App.registrar('saiu', '', '').then(function () {
+      return App.sb.auth.signOut();
+    }).then(function () {
       App.usuario = null; App.papel = null; App.equipe = [];
       App.orcamentos = []; App.visitas = [];
       App.carregando(false);

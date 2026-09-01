@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/sistema/estilo.css?v=7ba61edb">
+<link rel="stylesheet" href="/sistema/estilo.css?v=03a78b72">
 </head>
 <body>
 
@@ -53,6 +53,7 @@
         <a href="#/orcamentos" data-rota="orcamentos">Orçamentos</a>
         <a href="#/agenda"     data-rota="agenda">Agenda</a>
         <a href="#/equipe"     data-rota="equipe" hidden>Equipe</a>
+        <a href="#/historico"  data-rota="historico" hidden>Histórico</a>
       </nav>
       <button class="btn btn--fantasma btn--pequeno" type="button" id="btn-sair">Sair</button>
     </div>
@@ -255,6 +256,37 @@
       <div id="equipe-lista"></div>
     </section>
 
+    <!-- ----------------------- HISTÓRICO ---------------------- -->
+    <section class="pagina" id="pg-historico" hidden>
+      <header class="cabeca">
+        <div>
+          <h1 class="cabeca__titulo">Histórico</h1>
+          <p class="cabeca__sub" id="historico-resumo"></p>
+        </div>
+        <div class="cabeca__acoes">
+          <button class="btn btn--fantasma" type="button" id="btn-historico-recarregar">Atualizar</button>
+        </div>
+      </header>
+
+      <div class="filtros">
+        <select id="historico-pessoa" aria-label="Filtrar por pessoa">
+          <option value="">Todo mundo</option>
+        </select>
+        <div class="pilulas" role="group" aria-label="Filtrar por tipo">
+          <button type="button" data-h="todos" aria-pressed="true">Tudo</button>
+          <button type="button" data-h="orcamento" aria-pressed="false">Orçamentos</button>
+          <button type="button" data-h="visita" aria-pressed="false">Agenda</button>
+          <button type="button" data-h="equipe" aria-pressed="false">Equipe</button>
+          <button type="button" data-h="acesso" aria-pressed="false">Entradas</button>
+        </div>
+      </div>
+
+      <div id="historico-lista"></div>
+      <div class="historico__fim">
+        <button class="btn btn--fantasma" type="button" id="btn-historico-mais" hidden>Ver mais antigos</button>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -339,10 +371,11 @@
 <script src="/sistema/config.js?v=db571d05"></script>
 <script src="/sistema/logo-dados.js?v=bde4a42a"></script>
 <script src="/sistema/pdf.js?v=b0af39e2"></script>
-<script src="/sistema/nucleo.js?v=a607dd31"></script>
-<script src="/sistema/orcamentos.js?v=954ccc79"></script>
+<script src="/sistema/nucleo.js?v=b3c90b4e"></script>
+<script src="/sistema/orcamentos.js?v=21869e25"></script>
 <script src="/sistema/agenda.js?v=d986d49d"></script>
 <script src="/sistema/cobranca.js?v=e0e8510c"></script>
+<script src="/sistema/historico.js?v=480d9700"></script>
 <script src="/sistema/equipe.js?v=58ad17e7"></script>
 <script src="/sistema/inicio.js?v=b4c48f81"></script>
 </body>
