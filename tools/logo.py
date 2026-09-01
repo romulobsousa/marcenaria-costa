@@ -40,6 +40,24 @@ def recorta(caminho):
     return img.crop(img.getbbox())
 
 
+def para_fundo_escuro(arte):
+    """Versão para fundo escuro: o azul-marinho da logo some contra o
+    carvão do site, então ele vira areia clara. O dourado fica igual."""
+    a = np.array(arte).astype(np.int16)
+    r, g, b, alfa = a[:, :, 0], a[:, :, 1], a[:, :, 2], a[:, :, 3]
+
+    # marinho: escuro e mais azul que vermelho. dourado: vermelho na frente.
+    marinho = (b >= r - 4) & (r + g + b < 330)
+
+    AREIA = (247, 243, 237)
+    for i, v in enumerate(AREIA):
+        canal = a[:, :, i]
+        canal[marinho] = v
+        a[:, :, i] = canal
+    a[:, :, 3] = alfa
+    return Image.fromarray(a.astype(np.uint8), 'RGBA')
+
+
 def salva(img, nome, qualidade=85):
     base = os.path.join(RAIZ, 'assets', 'img', nome)
     img.save(base + '.png', optimize=True)
@@ -62,6 +80,15 @@ def main():
     mono = arte.crop((0, 0, arte.width, int(arte.height * 0.60)))
     mono = mono.crop(mono.getbbox())
     salva(mono.resize((round(72 * mono.width / mono.height), 72), Image.LANCZOS), 'logo-marca')
+
+    # versões para fundo escuro (cabeçalho e rodapé do site)
+    escura = para_fundo_escuro(arte)
+    salva(escura.resize((520, round(520 * escura.height / escura.width)), Image.LANCZOS),
+          'logo-escura')
+    monoE = escura.crop((0, 0, escura.width, int(escura.height * 0.60)))
+    monoE = monoE.crop(monoE.getbbox())
+    salva(monoE.resize((round(72 * monoE.width / monoE.height), 72), Image.LANCZOS),
+          'logo-marca-escura')
 
     # para o PDF: assentada na mesma cor da faixa do cabeçalho, para não
     # aparecer um retângulo branco em volta dela

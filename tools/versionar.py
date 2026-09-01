@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """
-Carimba cada arquivo do sistema com uma marca do seu conteúdo.
+Carimba cada arquivo de código com uma marca do seu conteúdo.
 
-Sem isso, o navegador guarda o JavaScript antigo e você publica uma
-correção que o seu próprio celular não vê. Com a marca, o endereço do
-arquivo muda junto com o conteúdo, e o navegador é obrigado a buscar
-a versão nova.
+Sem isso, o navegador guarda o JavaScript e o CSS antigos e você publica
+uma correção que o seu próprio celular não vê — ainda mais porque a pasta
+assets é servida com cache de um ano. Com a marca, o endereço do arquivo
+muda junto com o conteúdo, e o navegador é obrigado a buscar a versão nova.
+
+Cuida de duas páginas:
+  sistema/index.html  →  os arquivos de sistema/
+  index.html (o site) →  assets/css/*.css e assets/js/*.js
 
 Roda sozinho dentro do deploy.sh — você não precisa chamar à mão.
 """
@@ -16,49 +20,67 @@ import re
 import sys
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PAGINA = os.path.join(RAIZ, 'sistema', 'index.html')
-PASTA = os.path.join(RAIZ, 'sistema')
 
 
-def marca(nome):
-    caminho = os.path.join(PASTA, nome)
+def marca(caminho):
     if not os.path.exists(caminho):
         return None
     with open(caminho, 'rb') as f:
         return hashlib.md5(f.read()).hexdigest()[:8]
 
 
-def main():
-    if not os.path.exists(PAGINA):
-        print('  (sistema/index.html não encontrado — nada a versionar)')
+def carimba(pagina, prefixos):
+    """prefixos: lista de (prefixo_no_html, pasta_no_disco)"""
+    if not os.path.exists(pagina):
         return 0
 
-    with open(PAGINA, encoding='utf-8') as f:
+    with open(pagina, encoding='utf-8') as f:
         html = f.read()
-
     original = html
-
-    # limpa marcas antigas
-    html = re.sub(r'(/sistema/[a-z0-9-]+\.(?:js|css))\?v=[a-z0-9]+', r'\1', html)
-
-    # aplica as novas
     trocas = 0
-    for nome in sorted(os.listdir(PASTA)):
-        if not nome.endswith(('.js', '.css')):
+
+    for prefixo, pasta in prefixos:
+        if not os.path.isdir(pasta):
             continue
-        v = marca(nome)
-        if not v:
-            continue
-        alvo = '"/sistema/%s"' % nome
-        if alvo in html:
-            html = html.replace(alvo, '"/sistema/%s?v=%s"' % (nome, v))
-            trocas += 1
+
+        # limpa marcas antigas deste prefixo
+        html = re.sub(re.escape(prefixo) + r'([a-z0-9-]+\.(?:js|css))\?v=[a-z0-9]+',
+                      prefixo + r'\1', html)
+
+        for nome in sorted(os.listdir(pasta)):
+            if not nome.endswith(('.js', '.css')):
+                continue
+            v = marca(os.path.join(pasta, nome))
+            if not v:
+                continue
+            alvo = '"%s%s"' % (prefixo, nome)
+            if alvo in html:
+                html = html.replace(alvo, '"%s%s?v=%s"' % (prefixo, nome, v))
+                trocas += 1
 
     if html != original:
-        with open(PAGINA, 'w', encoding='utf-8') as f:
+        with open(pagina, 'w', encoding='utf-8') as f:
             f.write(html)
+    return trocas
 
-    print('  %d arquivos carimbados' % trocas)
+
+def main():
+    total = 0
+
+    total += carimba(
+        os.path.join(RAIZ, 'sistema', 'index.html'),
+        [('/sistema/', os.path.join(RAIZ, 'sistema'))])
+
+    total += carimba(
+        os.path.join(RAIZ, 'index.html'),
+        [('assets/css/', os.path.join(RAIZ, 'assets', 'css')),
+         ('assets/js/',  os.path.join(RAIZ, 'assets', 'js'))])
+
+    total += carimba(
+        os.path.join(RAIZ, 'p', 'index.html'),
+        [('/sistema/', os.path.join(RAIZ, 'sistema'))])
+
+    print('  %d arquivos carimbados' % total)
     return 0
 
 

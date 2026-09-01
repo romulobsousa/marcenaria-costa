@@ -18,5 +18,7 @@ assets/img/*.png
 !assets/img/logo.jpeg
 !assets/img/logo.png
 !assets/img/logo-marca.png
+!assets/img/logo-escura.png
+!assets/img/logo-marca-escura.png
 
 .tools/

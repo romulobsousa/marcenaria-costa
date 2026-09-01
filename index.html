@@ -33,7 +33,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="image" href="assets/img/hero.jpg" fetchpriority="high">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css?v=06cffc31">
 
 <script type="application/ld+json">
 {
@@ -102,10 +102,10 @@
 <header class="cabecalho" id="cabecalho">
   <div class="container cabecalho__linha">
     <a class="marca" href="#topo" aria-label="Marcenaria Costa — início">
-      <svg class="marca__simbolo" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
-        <rect x="2.5" y="2.5" width="35" height="35" rx="4" fill="none" stroke="currentColor" stroke-width="2"/>
-        <path d="M2.5 15.5h35M20 15.5V37.5M9 24.5h4M27 24.5h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      </svg>
+      <picture>
+        <source srcset="/assets/img/logo-marca-escura.webp" type="image/webp">
+        <img class="marca__simbolo" src="/assets/img/logo-marca-escura.png" alt="" width="169" height="72" decoding="async">
+      </picture>
       <span class="marca__texto">
         <strong>Marcenaria Costa</strong>
         <small>Móveis planejados · Curitiba PR</small>
@@ -692,12 +692,11 @@
 <footer class="rodape">
   <div class="container rodape__grade">
     <div>
-      <a class="marca marca--rodape" href="#topo">
-        <svg class="marca__simbolo" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
-          <rect x="2.5" y="2.5" width="35" height="35" rx="4" fill="none" stroke="currentColor" stroke-width="2"/>
-          <path d="M2.5 15.5h35M20 15.5V37.5M9 24.5h4M27 24.5h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <span class="marca__texto"><strong>Marcenaria Costa</strong><small>Móveis planejados sob medida</small></span>
+      <a class="marca marca--rodape" href="#topo" aria-label="Marcenaria Costa — voltar ao topo">
+        <picture>
+          <source srcset="/assets/img/logo-escura.webp" type="image/webp">
+          <img class="marca__cheia" src="/assets/img/logo-escura.png" alt="Marcenaria Costa — móveis sob medida" width="520" height="369" loading="lazy" decoding="async">
+        </picture>
       </a>
       <p class="rodape__sobre">Marcenaria em Curitiba – PR. Projeto, fabricação e instalação de móveis planejados para residências e comércio.</p>
     </div>
@@ -747,6 +746,6 @@
   <button class="lightbox__nav lightbox__nav--prox" type="button" aria-label="Próximo">&#8250;</button>
 </div>
 
-<script src="assets/js/main.js" defer></script>
+<script src="assets/js/main.js?v=42cf6a71" defer></script>
 </body>
 </html>
