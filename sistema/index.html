@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/sistema/estilo.css?v=03a78b72">
+<link rel="stylesheet" href="/sistema/estilo.css?v=870e7fb6">
 </head>
 <body>
 
@@ -202,6 +202,30 @@
             <button class="btn btn--cheio" type="button" id="btn-salvar">Salvar</button>
             <button class="btn btn--perigo btn--cheio" type="button" id="btn-excluir" hidden>Excluir orçamento</button>
           </section>
+
+          <!-- Só o admin enxerga daqui para baixo. O cliente nunca. -->
+          <section class="cartao conta" id="conta" hidden>
+            <h2 class="cartao__titulo">Sua conta <i class="conta__aviso">só você vê</i></h2>
+
+            <div class="conta__margem">
+              <div class="conta__margem-topo">
+                <span class="campo__rot">Margem sobre o custo</span>
+                <strong id="margem-valor">20%</strong>
+              </div>
+              <input type="range" id="c-margem" min="10" max="30" step="1" value="20"
+                     aria-label="Margem sobre o custo do marceneiro">
+              <div class="conta__margem-pes"><span>10%</span><span>30%</span></div>
+            </div>
+
+            <div class="linha-total"><span>Custo do marceneiro</span><strong id="t-custo">R$ 0,00</strong></div>
+            <div class="linha-total"><span>Preço ao cliente</span><strong id="t-cliente">R$ 0,00</strong></div>
+            <div class="linha-total linha-total--lucro"><span>Seu lucro</span><strong id="t-lucro">R$ 0,00</strong></div>
+            <p class="conta__nota" id="conta-nota"></p>
+
+            <h3 class="conta__sub">Desconto à vista</h3>
+            <p class="conta__nota" id="conta-limite"></p>
+            <div class="avista" id="avista"></div>
+          </section>
         </aside>
       </div>
     </section>
@@ -372,7 +396,7 @@
 <script src="/sistema/logo-dados.js?v=bde4a42a"></script>
 <script src="/sistema/pdf.js?v=b0af39e2"></script>
 <script src="/sistema/nucleo.js?v=b3c90b4e"></script>
-<script src="/sistema/orcamentos.js?v=21869e25"></script>
+<script src="/sistema/orcamentos.js?v=08de2641"></script>
 <script src="/sistema/agenda.js?v=d986d49d"></script>
 <script src="/sistema/cobranca.js?v=e0e8510c"></script>
 <script src="/sistema/historico.js?v=480d9700"></script>
