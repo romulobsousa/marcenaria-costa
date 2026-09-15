@@ -50,7 +50,10 @@
     equipe_liberada:     ['Liberou o acesso',         'equipe',    'bom'],
     equipe_desligada:    ['Desligou o acesso',        'equipe',    'ruim'],
     equipe_papel:        ['Mudou o papel',            'equipe',    'aviso'],
-    equipe_removida:     ['Removeu da equipe',        'equipe',    'ruim']
+    equipe_removida:     ['Removeu da equipe',        'equipe',    'ruim'],
+    equipe_senha:        ['Trocou a senha de',        'equipe',    'aviso'],
+
+    orcamento_margem:    ['Mexeu na margem',          'orcamento', 'aviso']
   };
 
   function daAcao(a) { return ACOES[a] || [a.replace(/_/g, ' '), 'outro', 'neutro']; }

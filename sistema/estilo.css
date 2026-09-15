@@ -681,3 +681,24 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: .7; }
   border: 0; background: none; padding: 0; cursor: pointer;
   color: var(--latao); font: inherit; font-weight: 600; text-decoration: underline;
 }
+
+
+/* ---------- trocar senha, dentro do cartão da pessoa ---------- */
+.pessoa__acesso { margin: 6px 0 0; font-size: .8rem; color: var(--ink-3); }
+.senha { grid-column: 1 / -1; margin-top: 10px; padding-top: 12px; border-top: 1px dashed var(--line); }
+.senha__abrir {
+  border: 0; background: none; padding: 0; cursor: pointer;
+  font: inherit; font-size: .83rem; font-weight: 600; color: var(--latao);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.senha__abrir:hover { color: var(--ink); }
+.senha__titulo { margin: 0 0 8px; font-size: .86rem; font-weight: 600; }
+.senha__linha { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.senha__campo {
+  flex: 1 1 200px; min-width: 0; font-family: ui-monospace, monospace; font-size: 1rem;
+  letter-spacing: .06em; padding: 10px 12px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 9px; color: var(--ink);
+}
+.senha__campo:focus { outline: 2px solid var(--latao); outline-offset: 1px; }
+.senha__nota { margin: 9px 0 0; font-size: .79rem; color: var(--ink-3); line-height: 1.5; }
+.senha__acoes { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }

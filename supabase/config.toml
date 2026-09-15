@@ -1,0 +1,10 @@
+# Marcenaria Costa — configuração mínima da CLI do Supabase.
+# Só existe para a CLI saber de que projeto estamos falando na hora de
+# publicar a função. Não mexa aqui: quem publica é tools/publicar-funcao.sh.
+
+project_id = "marcenaria-costa"
+
+[functions.senha]
+# A função confere sozinha quem está chamando, então o Supabase precisa
+# entregar o token de quem chamou — daí a verificação ligada.
+verify_jwt = true
