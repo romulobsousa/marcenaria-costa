@@ -449,6 +449,8 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: .7; }
 .num__val {
   font-family: ui-monospace, monospace; font-size: 1.5rem; font-weight: 500;
   letter-spacing: -.02em; font-variant-numeric: tabular-nums; line-height: 1.15;
+  /* valor grande em tela estreita não pode vazar o cartão */
+  font-size: clamp(.95rem, 4.5vw, 1.5rem); overflow-wrap: anywhere;
 }
 .num__val--destaque { color: var(--latao); }
 .num__nota { font-size: .76rem; color: var(--ink-3); margin-top: 4px; }
@@ -702,3 +704,45 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: .7; }
 .senha__campo:focus { outline: 2px solid var(--latao); outline-offset: 1px; }
 .senha__nota { margin: 9px 0 0; font-size: .79rem; color: var(--ink-3); line-height: 1.5; }
 .senha__acoes { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+
+
+/* =====================================================================
+   FATURAMENTO — o que já entrou, na tela inicial
+   ===================================================================== */
+.faturamento {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 13px; padding: 18px 20px; margin-bottom: 18px;
+}
+.faturamento__topo {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 14px;
+}
+.faturamento__titulo {
+  font-family: Inter, sans-serif; font-size: .72rem; font-weight: 600;
+  letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); margin: 0;
+}
+.faturamento__nota { font-size: .8rem; color: var(--latao); font-weight: 500; }
+
+.faturamento__grade { display: grid; gap: 16px; grid-template-columns: 1fr; }
+.fat { min-width: 0; }
+.fat + .fat { border-top: 1px solid var(--line); padding-top: 14px; }
+.fat__rot {
+  font-size: .73rem; font-weight: 600; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--ink-3); margin: 0 0 4px;
+}
+.fat__val {
+  font-family: ui-monospace, monospace; font-variant-numeric: tabular-nums;
+  font-size: 1.4rem; font-weight: 500; line-height: 1.15;
+}
+.fat__val--destaque { color: var(--latao); font-size: 1.75rem; font-weight: 600; }
+.fat__nota { font-size: .8rem; color: var(--ink-3); margin-top: 3px; }
+
+@media (min-width: 720px) {
+  .faturamento__grade { grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .fat + .fat {
+    border-top: 0; padding-top: 0;
+    border-left: 1px solid var(--line); padding-left: 24px;
+  }
+}
+
+.fora-da-tela { color: var(--ink-3); font-style: italic; }

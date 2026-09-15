@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/sistema/estilo.css?v=6376fdd3">
+<link rel="stylesheet" href="/sistema/estilo.css?v=ee0cb6ad">
 </head>
 <body>
 
@@ -69,12 +69,21 @@
           <p class="cabeca__sub" id="hoje-data"></p>
         </div>
         <div class="cabeca__acoes">
+          <button class="btn btn--fantasma" type="button" id="btn-limpar" hidden>Limpar a tela</button>
           <button class="btn btn--fantasma" type="button" data-ir="agenda-nova">Marcar visita</button>
           <button class="btn" type="button" data-ir="orcamento-novo">Novo orçamento</button>
         </div>
       </header>
 
       <div class="numeros" id="hoje-numeros"></div>
+
+      <section class="faturamento" id="faturamento">
+        <div class="faturamento__topo">
+          <h2 class="faturamento__titulo">Faturamento</h2>
+          <span class="faturamento__nota" id="faturamento-nota"></span>
+        </div>
+        <div class="faturamento__grade" id="faturamento-grade"></div>
+      </section>
 
       <section class="empurrao" id="empurrao" hidden>
         <div class="empurrao__topo">
@@ -200,6 +209,7 @@
             <div class="linha-total linha-total--grande"><span>Total</span><strong id="t-total">R$ 0,00</strong></div>
             <p class="salvo" id="estado-salvo"></p>
             <button class="btn btn--cheio" type="button" id="btn-salvar">Salvar</button>
+            <button class="btn btn--fantasma btn--cheio" type="button" id="voltar-pra-tela" hidden>Voltar para a tela inicial</button>
             <button class="btn btn--perigo btn--cheio" type="button" id="btn-excluir" hidden>Excluir orçamento</button>
           </section>
 
@@ -398,11 +408,11 @@
 <script src="/sistema/logo-dados.js?v=bde4a42a"></script>
 <script src="/sistema/pdf.js?v=b0af39e2"></script>
 <script src="/sistema/nucleo.js?v=b3c90b4e"></script>
-<script src="/sistema/orcamentos.js?v=08de2641"></script>
+<script src="/sistema/orcamentos.js?v=2762912f"></script>
 <script src="/sistema/agenda.js?v=d986d49d"></script>
-<script src="/sistema/cobranca.js?v=e0e8510c"></script>
-<script src="/sistema/historico.js?v=39938aff"></script>
+<script src="/sistema/cobranca.js?v=c0d62283"></script>
+<script src="/sistema/historico.js?v=300848eb"></script>
 <script src="/sistema/equipe.js?v=c12636ad"></script>
-<script src="/sistema/inicio.js?v=b4c48f81"></script>
+<script src="/sistema/inicio.js?v=535fcb3b"></script>
 </body>
 </html>

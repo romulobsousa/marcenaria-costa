@@ -25,6 +25,7 @@
   App.filaCobranca = function () {
     return App.orcamentos.filter(function (o) {
       if (o.status !== 'enviado') return false;
+      if (o.arquivado_em) return false;        // você tirou da tela de propósito
 
       var base = o.ultimo_contato || o.enviado_em || o.atualizado_em || o.criado_em;
       var parado = diasDesde(base);
@@ -127,7 +128,7 @@
     if (!caixa || !alvo) return;
 
     caixa.hidden = fila.length === 0;
-    if (!fila.length) return;
+    if (!fila.length) { alvo.innerHTML = ''; return; }   // não deixa sobra escondida
 
     $('#empurrao-conta').textContent = fila.length === 1
       ? '1 orçamento esperando' : fila.length + ' orçamentos esperando';

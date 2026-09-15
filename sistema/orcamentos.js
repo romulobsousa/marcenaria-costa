@@ -106,7 +106,8 @@
           '<div class="item-lista__cliente' + (o.cliente_nome ? '' : ' item-lista__cliente--vazio') + '">' +
             esc(o.cliente_nome || 'Sem cliente') + '</div>' +
           '<div class="item-lista__resumo">' + data + '  ·  ' + n + (n === 1 ? ' móvel' : ' móveis') +
-            (quem(o) ? '  ·  ' + esc(quem(o)) : '') + '</div>' +
+            (quem(o) ? '  ·  ' + esc(quem(o)) : '') +
+            (o.arquivado_em ? '  ·  <span class="fora-da-tela">fora da tela inicial</span>' : '') + '</div>' +
         '</div>' +
         '<span class="marca-status marca-status--' + o.status + '">' + ROTULO[o.status] + '</span>' +
         '<span class="item-lista__valor">' + dinheiro(App.totalOrcamento(o)) + '</span>' +
@@ -180,6 +181,7 @@
     $('#editor-sub').textContent = ehNovo ? 'Ainda não salvo'
       : 'Criado em ' + new Date(o.criado_em).toLocaleDateString('pt-BR');
     $('#btn-excluir').hidden = ehNovo || !App.podeApagar();
+    $('#voltar-pra-tela').hidden = !o.arquivado_em;
 
     $('#c-nome').value = o.cliente_nome || '';
     $('#c-telefone').value = o.cliente_telefone || '';
@@ -481,6 +483,26 @@
       App.recarregar(true);
       App.ir('orcamentos');
     });
+  });
+
+  /* Tirado da tela inicial pelo botão "Limpar a tela": aqui dá para
+     trazer de volta, sem precisar mexer na situação do orçamento. */
+  $('#voltar-pra-tela').addEventListener('click', function () {
+    if (!atual.id) return;
+    App.carregando(true);
+    App.sb.from('orcamentos').update({ arquivado_em: null }).eq('id', atual.id)
+      .then(function (r) {
+        App.carregando(false);
+        if (r.error) throw r.error;
+        atual.arquivado_em = null;
+        $('#voltar-pra-tela').hidden = true;
+        App.avisar('Voltou para a tela inicial');
+        App.recarregar(true);
+      })
+      .catch(function (e) {
+        App.carregando(false);
+        App.avisar(App.textoErro(e), 'erro');
+      });
   });
 
   /* ---------------- PDF e WhatsApp ---------------- */
