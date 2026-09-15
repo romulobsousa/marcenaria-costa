@@ -74,6 +74,47 @@ window.App = (function () {
     return x;
   };
   App.hhmm = function (h) { return String(h || '').slice(0, 5); };
+
+  /* Dias úteis: pula sábado e domingo. Feriado não entra na conta —
+     seria preciso uma tabela de feriados, e errar por um dia num prazo
+     de trinta é menos ruim do que fingir precisão que não existe. */
+  App.somaDiasUteis = function (d, n) {
+    var x = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0);
+    var faltam = n;
+    while (faltam > 0) {
+      x.setDate(x.getDate() + 1);
+      var dia = x.getDay();
+      if (dia !== 0 && dia !== 6) faltam--;
+    }
+    return x;
+  };
+
+  /* Lê o prazo escrito à mão e tenta virar número: "35 dias úteis" vira
+     35 dias úteis; "30 dias" vira 30 corridos. Não entendeu, devolve
+     nulo e quem chamou pede a data na mão. */
+  App.prazoDoTexto = function (texto) {
+    var t = String(texto || '');
+    var m = t.match(/(\d{1,3})\s*(dias?|meses|m\u00eas|semanas?)?/i);
+    if (!m) return null;
+
+    var n = parseInt(m[1], 10);
+    if (!n || n > 365) return null;
+
+    var unidade = (m[2] || 'dias').toLowerCase();
+    if (/semana/.test(unidade)) n = n * 7;
+    else if (/m\u00eas|meses/.test(unidade)) n = n * 30;
+
+    return { dias: n, uteis: /\u00fateis|\u00fatil|uteis/i.test(t) && /dia/i.test(t) };
+  };
+
+  /* Quantos dias faltam para uma data (civil, sem fuso atrapalhar) */
+  App.diasAte = function (iso) {
+    if (!iso) return null;
+    var alvo = App.doISO(String(iso).slice(0, 10));
+    var hoje = new Date();
+    hoje = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 12, 0, 0);
+    return Math.round((alvo - hoje) / 86400000);
+  };
   App.hoje = function () { return App.paraISO(new Date()); };
 
   /* ---------------- navegação ---------------- */

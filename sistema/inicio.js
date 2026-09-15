@@ -97,6 +97,116 @@
                    : n + ' orçamentos fechados';
   }
 
+  /* ---------------- prazo de entrega ---------------- */
+  /* Três estados, e só três: dentro do prazo, esgotando (a última
+     semana) e estourado. Mais faixas do que isso viram enfeite. */
+  var AVISO_DIAS = 7;
+
+  App.estadoPrazo = function (o) {
+    if (o.status !== 'aprovado' || o.entregue_em || !o.entrega_em) return null;
+    var faltam = App.diasAte(o.entrega_em);
+    return {
+      faltam: faltam,
+      cor: faltam < 0 ? 'estourou' : faltam <= AVISO_DIAS ? 'esgotando' : 'noprazo',
+      texto: faltam < 0
+        ? 'atrasado ' + (-faltam) + (faltam === -1 ? ' dia' : ' dias')
+        : faltam === 0 ? 'entrega hoje'
+        : faltam === 1 ? 'falta 1 dia'
+        : 'faltam ' + faltam + ' dias'
+    };
+  };
+
+  /* selo pequeno, usado também na lista de orçamentos */
+  App.seloPrazo = function (o, comPonto) {
+    var p = App.estadoPrazo(o);
+    if (!p) return '';
+    return (comPonto ? '  ·  ' : '') +
+      '<span class="prazo prazo--' + p.cor + '">' + esc(p.texto) + '</span>';
+  };
+
+  function pintarEntregas() {
+    var lista = App.orcamentos.filter(function (o) { return !!App.estadoPrazo(o); })
+      .sort(function (a, b) { return String(a.entrega_em).localeCompare(String(b.entrega_em)); });
+
+    // aprovados sem data combinada: aparecem no fim, pedindo a data
+    var semData = App.orcamentos.filter(function (o) {
+      return o.status === 'aprovado' && !o.entregue_em && !o.entrega_em;
+    });
+
+    var caixa = $('#entregas');
+    var alvo = $('#entregas-lista');
+    if (!caixa || !alvo) return;
+
+    caixa.hidden = !lista.length && !semData.length;
+    if (caixa.hidden) { alvo.innerHTML = ''; return; }
+
+    var apertados = lista.filter(function (o) { return App.estadoPrazo(o).cor !== 'noprazo'; }).length;
+    $('#entregas-conta').textContent = apertados
+      ? apertados + (apertados === 1 ? ' pedindo atenção' : ' pedindo atenção')
+      : lista.length + (lista.length === 1 ? ' serviço em produção' : ' serviços em produção');
+
+    alvo.innerHTML = lista.map(function (o) {
+      var p = App.estadoPrazo(o);
+      var quando = App.doISO(String(o.entrega_em).slice(0, 10))
+        .toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+      return '<button class="entrega" type="button" data-orc="' + o.id + '" data-cor="' + p.cor + '">' +
+        '<span class="entrega__num">' + String(o.numero).padStart(3, '0') + '</span>' +
+        '<div class="entrega__meio">' +
+          '<div class="entrega__cliente">' + esc(o.cliente_nome || 'Sem cliente') + '</div>' +
+          '<div class="entrega__linha">até ' + quando +
+            '<span class="prazo prazo--' + p.cor + '">' + esc(p.texto) + '</span></div>' +
+        '</div>' +
+        '<span class="entrega__valor">' + dinheiro(App.totalOrcamento(o)) + '</span>' +
+        '<span class="entrega__feito" data-feito="' + o.id + '">Entreguei</span>' +
+      '</button>';
+    }).join('') +
+    (semData.length
+      ? '<p class="entregas__semdata">' + semData.length +
+        (semData.length === 1 ? ' serviço aprovado está' : ' serviços aprovados estão') +
+        ' sem data de entrega combinada. ' +
+        semData.map(function (o) {
+          return '<button type="button" data-orc="' + o.id + '">nº ' +
+                 String(o.numero).padStart(3, '0') + '</button>';
+        }).join(' ') + '</p>'
+      : '');
+
+    App.$$('[data-orc]', alvo).forEach(function (el) {
+      el.addEventListener('click', function (ev) {
+        if (ev.target.closest('[data-feito]')) return;    // esse tem dono
+        var o = App.orcamentos.filter(function (x) { return x.id === el.dataset.orc; })[0];
+        if (o) { App.ir('orcamentos'); setTimeout(function () { App.abrirOrcamento(o); }, 40); }
+      });
+    });
+
+    App.$$('[data-feito]', alvo).forEach(function (el) {
+      el.addEventListener('click', function (ev) {
+        ev.stopPropagation();
+        var o = App.orcamentos.filter(function (x) { return x.id === el.dataset.feito; })[0];
+        if (!o) return;
+        if (!confirm('Marcar o orçamento ' + String(o.numero).padStart(3, '0') +
+                     ' como entregue?\n\nEle sai desta lista, mas continua aprovado e ' +
+                     'contando no faturamento.')) return;
+
+        App.carregando(true);
+        App.sb.from('orcamentos').update({ entregue_em: App.hoje() }).eq('id', o.id)
+          .then(function (r) {
+            App.carregando(false);
+            if (r.error) throw r.error;
+            App.avisar('Marcado como entregue');
+            App.registrar('orcamento_entregue', 'Orçamento ' + String(o.numero).padStart(3, '0') +
+              (o.cliente_nome ? ' · ' + o.cliente_nome : ''), '', o.id);
+            App.recarregar(true);
+          })
+          .catch(function (e) {
+            App.carregando(false);
+            var m = (e && e.message) || '';
+            App.avisar(/entregue_em/.test(m)
+              ? 'Falta rodar o banco-entrega.sql no Supabase.' : App.textoErro(e), 'erro');
+          });
+      });
+    });
+  }
+
   /* ---------------- limpar a tela ---------------- */
   /* Vencido: enviado, passou da validade e ninguém respondeu. Arquivar
      tira da tela inicial — o orçamento continua inteiro na lista. */
@@ -241,6 +351,7 @@
     pintarCabeca();
     pintarNumeros();
     pintarFaturamento();
+    pintarEntregas();
     pintarLimpar();
     pintarVisitas();
     pintarOrcamentos();

@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/sistema/estilo.css?v=ee0cb6ad">
+<link rel="stylesheet" href="/sistema/estilo.css?v=c4b58072">
 </head>
 <body>
 
@@ -83,6 +83,14 @@
           <span class="faturamento__nota" id="faturamento-nota"></span>
         </div>
         <div class="faturamento__grade" id="faturamento-grade"></div>
+      </section>
+
+      <section class="entregas" id="entregas" hidden>
+        <div class="entregas__topo">
+          <h2 class="entregas__titulo">Entregas combinadas</h2>
+          <span class="entregas__conta" id="entregas-conta"></span>
+        </div>
+        <div id="entregas-lista"></div>
       </section>
 
       <section class="empurrao" id="empurrao" hidden>
@@ -191,6 +199,17 @@
                 <input type="text" id="c-pagamento"></label>
               <label class="campo"><span class="campo__rot">Validade da proposta</span>
                 <div class="com-sufixo"><input type="number" id="c-validade" min="1" max="180"><span>dias</span></div></label>
+            </div>
+
+            <!-- só faz sentido depois que o cliente aprovou -->
+            <div class="entrega-campo" id="entrega-campo" hidden>
+              <div class="grade-2">
+                <label class="campo"><span class="campo__rot">Entregar até <i>o prazo que conta aqui dentro</i></span>
+                  <input type="date" id="c-entrega"></label>
+                <label class="campo"><span class="campo__rot">Entregue em <i>deixe vazio se ainda não</i></span>
+                  <input type="date" id="c-entregue"></label>
+              </div>
+              <p class="entrega-campo__nota" id="entrega-nota"></p>
             </div>
             <label class="campo"><span class="campo__rot">Observações <i>saem no PDF</i></span>
               <textarea id="c-obs" rows="3"></textarea></label>
@@ -407,12 +426,12 @@
 <script src="/sistema/config.js?v=db571d05"></script>
 <script src="/sistema/logo-dados.js?v=bde4a42a"></script>
 <script src="/sistema/pdf.js?v=b0af39e2"></script>
-<script src="/sistema/nucleo.js?v=b3c90b4e"></script>
-<script src="/sistema/orcamentos.js?v=2762912f"></script>
+<script src="/sistema/nucleo.js?v=41a5005b"></script>
+<script src="/sistema/orcamentos.js?v=4370b709"></script>
 <script src="/sistema/agenda.js?v=d986d49d"></script>
 <script src="/sistema/cobranca.js?v=c0d62283"></script>
-<script src="/sistema/historico.js?v=300848eb"></script>
+<script src="/sistema/historico.js?v=53ea8d7f"></script>
 <script src="/sistema/equipe.js?v=c12636ad"></script>
-<script src="/sistema/inicio.js?v=535fcb3b"></script>
+<script src="/sistema/inicio.js?v=cf926cb4"></script>
 </body>
 </html>

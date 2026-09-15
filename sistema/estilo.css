@@ -746,3 +746,76 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: .7; }
 }
 
 .fora-da-tela { color: var(--ink-3); font-style: italic; }
+
+
+/* =====================================================================
+   PRAZO DE ENTREGA — o que está em produção e quanto falta
+   ===================================================================== */
+.prazo {
+  display: inline-block; margin-left: 7px; font-size: .72rem; font-weight: 600;
+  letter-spacing: .03em; padding: 2px 8px; border-radius: 5px; white-space: nowrap;
+}
+.prazo--noprazo   { background: #e4efe6; color: #2f7d4c; }
+.prazo--esgotando { background: var(--latao-bg); color: var(--latao); }
+.prazo--estourou  { background: var(--grave-bg); color: var(--grave); }
+
+.entregas {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 13px; padding: 16px 18px; margin-bottom: 18px;
+}
+.entregas__topo {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 12px;
+}
+.entregas__titulo {
+  font-family: Inter, sans-serif; font-size: .72rem; font-weight: 600;
+  letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); margin: 0;
+}
+.entregas__conta { font-size: .8rem; color: var(--ink-3); }
+
+.entrega {
+  display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; width: 100%;
+  text-align: left; font: inherit; cursor: pointer;
+  background: var(--ground); border: 1px solid var(--line);
+  border-left: 3px solid var(--line);
+  border-radius: 9px; padding: 11px 14px; margin-bottom: 7px;
+}
+.entrega:last-of-type { margin-bottom: 0; }
+.entrega:hover { border-color: var(--latao); }
+.entrega[data-cor="noprazo"]   { border-left-color: #2f7d4c; }
+.entrega[data-cor="esgotando"] { border-left-color: var(--latao); }
+.entrega[data-cor="estourou"]  { border-left-color: var(--grave); }
+
+.entrega__num {
+  font-family: ui-monospace, monospace; font-size: .8rem; color: var(--ink-3); flex: none;
+}
+.entrega__meio { flex: 1 1 200px; min-width: 0; }
+.entrega__cliente { font-weight: 600; font-size: .95rem; }
+.entrega__linha {
+  font-size: .81rem; color: var(--ink-3); margin-top: 3px;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 2px;
+}
+.entrega__valor {
+  font-family: ui-monospace, monospace; font-variant-numeric: tabular-nums;
+  font-size: .95rem; margin-left: auto;
+}
+.entrega__feito {
+  font-size: .78rem; font-weight: 600; color: var(--latao);
+  border: 1px solid var(--line); border-radius: 7px; padding: 5px 10px;
+  background: var(--surface);
+}
+.entrega__feito:hover { background: var(--latao-bg); }
+
+.entregas__semdata { font-size: .82rem; color: var(--ink-3); margin: 12px 0 0; line-height: 1.7; }
+.entregas__semdata button {
+  border: 0; background: var(--surface-2); padding: 2px 8px; border-radius: 5px;
+  font: inherit; font-weight: 600; color: var(--latao); cursor: pointer;
+}
+
+.entrega-campo { margin-top: 4px; padding-top: 14px; border-top: 1px dashed var(--line); }
+.entrega-campo__nota { font-size: .8rem; color: var(--ink-3); margin: 8px 0 0; }
+
+@media (max-width: 620px) {
+  .entrega__valor { margin-left: 0; }
+  .entrega__feito { margin-left: auto; }
+}

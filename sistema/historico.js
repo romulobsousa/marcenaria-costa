@@ -54,7 +54,8 @@
     equipe_senha:        ['Trocou a senha de',        'equipe',    'aviso'],
 
     orcamento_margem:    ['Mexeu na margem',          'orcamento', 'aviso'],
-    orcamento_arquivado: ['Limpou da tela inicial',   'orcamento', 'neutro']
+    orcamento_arquivado: ['Limpou da tela inicial',   'orcamento', 'neutro'],
+    orcamento_entregue:  ['Entregou',                 'orcamento', 'bom']
   };
 
   function daAcao(a) { return ACOES[a] || [a.replace(/_/g, ' '), 'outro', 'neutro']; }

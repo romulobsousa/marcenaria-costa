@@ -58,6 +58,46 @@
     }, 0);
   }
 
+  /* ---------------- prazo de entrega ---------------- */
+  /* O prazo escrito ("35 dias úteis") é o que o cliente lê. A data é o
+     que o sistema conta. Ao aprovar, a data nasce sugerida a partir do
+     texto — e fica editável, porque o combinado de verdade pode mudar. */
+  function pintarEntrega() {
+    var aprovado = atual.status === 'aprovado';
+    $('#entrega-campo').hidden = !aprovado;
+    if (!aprovado) {
+      // não deixa data escondida para trás
+      $('#c-entrega').value = '';
+      $('#c-entregue').value = '';
+      return;
+    }
+
+    $('#c-entrega').value  = (atual.entrega_em  || '').slice(0, 10);
+    $('#c-entregue').value = (atual.entregue_em || '').slice(0, 10);
+
+    var nota = '';
+    if (atual.entregue_em) {
+      nota = 'Entregue. Sai da lista de entregas da tela inicial.';
+    } else if (atual.entrega_em) {
+      var faltam = App.diasAte(atual.entrega_em);
+      nota = faltam < 0  ? 'Passou do combinado há ' + (-faltam) + (faltam === -1 ? ' dia.' : ' dias.')
+           : faltam === 0 ? 'É hoje.'
+           : 'Faltam ' + faltam + (faltam === 1 ? ' dia.' : ' dias.');
+    } else {
+      nota = 'Sem data, este serviço não entra no controle de prazo da tela inicial.';
+    }
+    $('#entrega-nota').textContent = nota;
+  }
+
+  /* sugere a data a partir do texto do prazo, contando da aprovação */
+  function sugerirEntrega() {
+    var p = App.prazoDoTexto(atual.prazo_entrega);
+    if (!p) return null;
+    var base = atual.aprovado_em ? new Date(atual.aprovado_em) : new Date();
+    var alvo = p.uteis ? App.somaDiasUteis(base, p.dias) : App.somaDias(base, p.dias);
+    return App.paraISO(alvo);
+  }
+
   /* como o orçamento aparece no histórico */
   function rotulo(o) {
     return 'Orçamento ' + String(o.numero || 0).padStart(3, '0') +
@@ -107,7 +147,8 @@
             esc(o.cliente_nome || 'Sem cliente') + '</div>' +
           '<div class="item-lista__resumo">' + data + '  ·  ' + n + (n === 1 ? ' móvel' : ' móveis') +
             (quem(o) ? '  ·  ' + esc(quem(o)) : '') +
-            (o.arquivado_em ? '  ·  <span class="fora-da-tela">fora da tela inicial</span>' : '') + '</div>' +
+            (o.arquivado_em ? '  ·  <span class="fora-da-tela">fora da tela inicial</span>' : '') +
+            (App.seloPrazo ? App.seloPrazo(o, true) : '') + '</div>' +
         '</div>' +
         '<span class="marca-status marca-status--' + o.status + '">' + ROTULO[o.status] + '</span>' +
         '<span class="item-lista__valor">' + dinheiro(App.totalOrcamento(o)) + '</span>' +
@@ -196,6 +237,7 @@
     $('#estado-salvo').textContent = ehNovo ? 'Ainda não salvo' : '';
 
     pintarItens();
+    pintarEntrega();
     App.ir('editor');
   }
 
@@ -418,7 +460,31 @@
   $('#c-desconto').addEventListener('input', function (e) {
     atual.desconto = parseFloat(e.target.value) || 0; sujar(); recalcular();
   });
-  $('#sel-status').addEventListener('change', function (e) { atual.status = e.target.value; sujar(); });
+  $('#sel-status').addEventListener('change', function (e) {
+    atual.status = e.target.value;
+
+    if (atual.status === 'aprovado') {
+      if (!atual.entrega_em) {
+        atual.entrega_em = sugerirEntrega();
+        if (atual.entrega_em) {
+          App.avisar('Entrega sugerida a partir do prazo escrito — confira a data');
+        }
+      }
+    } else {
+      // deixou de ser aprovado: o combinado de entrega vai junto
+      atual.entrega_em = null;
+      atual.entregue_em = null;
+    }
+
+    sujar(); pintarEntrega();
+  });
+
+  $('#c-entrega').addEventListener('input', function (e) {
+    atual.entrega_em = e.target.value || null; sujar(); pintarEntrega();
+  });
+  $('#c-entregue').addEventListener('input', function (e) {
+    atual.entregue_em = e.target.value || null; sujar(); pintarEntrega();
+  });
 
   /* ---------------- salvar ---------------- */
   function salvar() {
@@ -438,7 +504,9 @@
       desconto: Number(atual.desconto) || 0,
       prazo_entrega: atual.prazo_entrega, forma_pagamento: atual.forma_pagamento,
       observacoes: atual.observacoes, validade_dias: Number(atual.validade_dias) || 15,
-      status: atual.status
+      status: atual.status,
+      entrega_em: atual.entrega_em || null,
+      entregue_em: atual.entregue_em || null
     };
 
     App.carregando(true);
