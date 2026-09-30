@@ -515,3 +515,9 @@ body.travado { overflow: hidden; }
 
 /* Foco visível e acessível em todo lugar */
 :focus-visible { outline: 2px solid var(--latao-cl); outline-offset: 3px; border-radius: 4px; }
+
+/* ---- Aviso de foco em projetos (hero) + formulário ampliado ---- */
+.hero__aviso{margin:18px 0 0;max-width:34rem;font-size:.82rem;line-height:1.5;opacity:.78}
+.quiz__etapa .campos + .quiz__ajuda{margin-top:18px}
+.cta-final .btn + .btn{margin-left:10px}
+@media (max-width:560px){.cta-final .btn + .btn{margin-left:0;margin-top:10px}}

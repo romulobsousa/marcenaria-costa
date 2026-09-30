@@ -206,15 +206,14 @@ const CONFIG = {
     }
 
     function validar() {
-      if (etapa === 0 && valores('ambiente').length === 0) {
-        alerta('Escolha pelo menos um ambiente para continuar.');
-        return false;
-      }
-      if (etapa === 1 && valores('prazo').length === 0) { alerta('Escolha um prazo.'); return false; }
-      if (etapa === 2 && valores('imovel').length === 0) { alerta('Escolha a situação do imóvel.'); return false; }
-      if (etapa === 3 && !texto('nome')) {
-        alerta('Escreva seu nome para o atendimento.');
-        $('[name="nome"]', quiz).focus();
+      const f = etapas[etapa];
+      const campo = f.dataset.obrig;
+      if (!campo) return true;
+      const el = $('[name="' + campo + '"]', quiz);
+      const ok = el && (el.type === 'radio' || el.type === 'checkbox') ? valores(campo).length > 0 : !!texto(campo);
+      if (!ok) {
+        alerta(f.dataset.erro || 'Responda para continuar.');
+        if (el && el.type === 'text') el.focus();
         return false;
       }
       return true;
@@ -232,31 +231,35 @@ const CONFIG = {
       el.textContent = msg;
     }
 
-    function montarMensagem() {
+    function dados() {
       const amb = valores('ambiente');
-      const linhas = [
-        'Olá! Vim pelo site da Marcenaria Costa e quero um orçamento.',
-        '',
-        '• Nome: ' + (texto('nome') || '—'),
-        '• Ambientes: ' + (amb.length ? amb.join(', ') : '—'),
-        '• Prazo: ' + (valores('prazo')[0] || '—'),
-        '• Imóvel: ' + (valores('imovel')[0] || '—'),
-        '• Bairro/cidade: ' + (texto('bairro') || '—')
+      return [
+        ['Nome', texto('nome')],
+        ['Projeto', valores('projeto')[0]],
+        ['Ambientes', amb.join(', ')],
+        ['Medidas', texto('medidas')],
+        ['Planta/projeto', valores('planta')[0]],
+        ['Investimento previsto', valores('investimento')[0]],
+        ['Prazo', valores('prazo')[0]],
+        ['Imóvel', valores('imovel')[0]],
+        ['Bairro/cidade', texto('bairro')],
+        ['Melhor horário', valores('horario')[0]]
       ];
+    }
+
+    function montarMensagem() {
+      const linhas = ['Olá! Vim pelo site da Marcenaria Costa e quero um orçamento.', '', '*Resumo do meu projeto:*'];
+      dados().forEach(function (d) { if (d[1]) linhas.push('• ' + d[0] + ': ' + d[1]); });
       const obs = texto('obs');
-      if (obs) linhas.push('• Observações: ' + obs);
+      if (obs) linhas.push('• O que é importante: ' + obs);
       return linhas.join('\n');
     }
 
     function montarResumo() {
-      const amb = valores('ambiente');
-      resumo.textContent = [
-        'Nome: ' + (texto('nome') || '—'),
-        'Ambientes: ' + (amb.length ? amb.join(', ') : '—'),
-        'Prazo: ' + (valores('prazo')[0] || '—'),
-        'Imóvel: ' + (valores('imovel')[0] || '—'),
-        'Bairro/cidade: ' + (texto('bairro') || '—')
-      ].join('\n');
+      resumo.textContent = dados()
+        .filter(function (d) { return d[1]; })
+        .map(function (d) { return d[0] + ': ' + d[1]; })
+        .join('\n');
       enviar.setAttribute('href', linkZap(montarMensagem()));
       enviar.setAttribute('target', '_blank');
       enviar.setAttribute('rel', 'noopener');
@@ -279,7 +282,7 @@ const CONFIG = {
 
     if (enviar) {
       enviar.addEventListener('click', function () {
-        rastrear('quiz', { etapas_concluidas: etapas.length });
+        rastrear('quiz', { etapas_concluidas: etapas.length, projeto: valores('projeto')[0] || '', investimento: valores('investimento')[0] || '' });
         try { if (window.fbq) window.fbq('track', 'Lead'); } catch (e) {}
       });
     }

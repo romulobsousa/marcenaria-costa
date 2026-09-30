@@ -22,3 +22,4 @@ assets/img/*.png
 !assets/img/logo-marca-escura.png
 
 .tools/
+_backup_form/
