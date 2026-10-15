@@ -51,7 +51,10 @@ window.App = (function () {
       return 'A tabela de visitas ainda não existe. Rode o banco-agenda.sql no Supabase.';
     if (/relation .*orcamentos.* does not exist/i.test(m))
       return 'A tabela de orçamentos ainda não existe. Rode o banco.sql no Supabase.';
-    if (/Failed to fetch|NetworkError/i.test(m)) return 'Sem conexão com o servidor.';
+    if (/Failed to fetch|NetworkError|ERR_NAME_NOT_RESOLVED|respondeu a tempo/i.test(m)) {
+      return 'Não consegui falar com o banco de dados. Confira o projeto no Supabase ' +
+             '(pode estar pausado) e a sua internet.';
+    }
     if (/JWT|session/i.test(m)) return 'Sua sessão expirou. Entre novamente.';
     return m || 'Algo deu errado.';
   };
@@ -336,6 +339,31 @@ window.App = (function () {
            !CFG.SUPABASE_CHAVE || /COLE_AQUI/.test(CFG.SUPABASE_CHAVE);
   }
 
+  /* promessa com prazo: ou responde, ou falha dizendo que demorou */
+  function comPrazo(promessa, ms) {
+    return new Promise(function (resolver, falhar) {
+      var relogio = setTimeout(function () {
+        falhar(new Error('O servidor não respondeu a tempo.'));
+      }, ms);
+      Promise.resolve(promessa).then(
+        function (r) { clearTimeout(relogio); resolver(r); },
+        function (e) { clearTimeout(relogio); falhar(e); }
+      );
+    });
+  }
+
+  /* o banco não respondeu: diz isso na cara, na tela de login */
+  function servidorFora() {
+    var caixa = App.$('#login-erro');
+    if (!caixa) return;
+    caixa.innerHTML =
+      '<strong>O banco de dados não respondeu.</strong><br>' +
+      'O sistema abriu, mas não vai conseguir entrar enquanto isso não voltar. ' +
+      'Confira o projeto no Supabase — se estiver pausado, é só reativar.';
+    caixa.hidden = false;
+    App.carregando(false);
+  }
+
   App.iniciar = function () {
     if (faltaConfig()) {
       document.body.innerHTML =
@@ -354,10 +382,17 @@ window.App = (function () {
 
     App.sb = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_CHAVE);
 
-    App.sb.auth.getSession().then(function (r) {
+    /* Com o banco fora do ar, o getSession fica tentando renovar o token
+       e a promessa NUNCA se resolve — a tela ficava em branco, sem erro,
+       sem nada. Agora existe um prazo: estourou, mostra o login e diz o
+       que houve. Tela em branco não é resposta. */
+    comPrazo(App.sb.auth.getSession(), 8000).then(function (r) {
       var s = r && r.data && r.data.session;
       if (s) { App.usuario = s.user; mostrarApp(); } else mostrarLogin();
-    }).catch(mostrarLogin);
+    }).catch(function (e) {
+      mostrarLogin();
+      servidorFora(e);
+    });
 
     App.sb.auth.onAuthStateChange(function (ev) {
       if (ev === 'SIGNED_OUT') { App.usuario = null; App.papel = null; mostrarLogin(); }

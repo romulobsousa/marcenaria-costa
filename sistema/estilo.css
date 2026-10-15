@@ -135,8 +135,9 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: .7; }
 
 .erro {
   background: var(--grave-bg); color: var(--grave); font-size: .85rem;
-  padding: 9px 12px; border-radius: 8px; margin: 0 0 14px;
+  padding: 9px 12px; border-radius: 8px; margin: 0 0 14px; line-height: 1.5;
 }
+.erro strong { display: inline-block; margin-bottom: 2px; }
 
 /* ---------- filtros ---------- */
 .filtros { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; align-items: center; }
