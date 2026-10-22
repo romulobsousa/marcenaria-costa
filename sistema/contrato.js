@@ -431,7 +431,26 @@ window.gerarContrato = (function () {
       dataPorExtenso(new Date()) + '.');
 
     espaco(26);
-    quebraSePreciso(90);
+
+    /* A rubrica da CONTRATADA, quando existe, assenta em cima da linha
+       de assinatura — e precisa de espaço reservado antes da quebra,
+       senão ela cairia sozinha na página seguinte. */
+    var rubrica = window.ASSINATURA_CONTRATADA;
+    var alturaRubrica = 0;
+    if (rubrica) {
+      var largRubrica = 132;
+      alturaRubrica = largRubrica * rubrica.altura / rubrica.largura;
+    }
+
+    quebraSePreciso(90 + alturaRubrica);
+    y += alturaRubrica;
+
+    if (rubrica) {
+      try {
+        doc.addImage(rubrica.dados, 'PNG', M + 6, y - alturaRubrica - 2,
+                     largRubrica, alturaRubrica);
+      } catch (x) { /* sem rubrica, a linha continua lá para assinar */ }
+    }
 
     doc.setDrawColor(LINHA[0], LINHA[1], LINHA[2]);
     doc.setLineWidth(0.7);
