@@ -87,7 +87,7 @@ window.gerarContrato = (function () {
        quatro separados faz um aviso que ninguém lê até o fim */
     var ROTULO = { nome: 'razão social', documento: 'CNPJ', endereco: 'endereço',
                    representante: 'quem assina' };
-    var semConfig = ['nome', 'documento', 'endereco', 'representante'].filter(function (campo) {
+    var semConfig = ['nome', 'endereco'].filter(function (campo) {
       var v = String(c[campo] || '');
       return !v || /COLE AQUI/i.test(v);
     });
@@ -96,9 +96,11 @@ window.gerarContrato = (function () {
         semConfig.map(function (k) { return ROTULO[k]; }).join(', ') + ')');
     }
 
-    if (!String(orc.cliente_nome || '').trim())      faltas.push('nome do cliente');
-    if (!String(orc.cliente_documento || '').trim()) faltas.push('CPF ou CNPJ do cliente');
-    if (!String(orc.cliente_endereco || '').trim())  faltas.push('endereço do cliente');
+    /* O documento do cliente é opcional: tem contrato que sai só com nome
+       e endereço. Quando existe, entra; quando não, a frase some em vez
+       de deixar uma linha pontilhada no meio do texto. */
+    if (!String(orc.cliente_nome || '').trim())     faltas.push('nome do cliente');
+    if (!String(orc.cliente_endereco || '').trim()) faltas.push('endereço do cliente');
 
     var itens = (Array.isArray(orc.itens) ? orc.itens : [])
       .filter(function (it) { return (it.descricao || '').trim(); });
@@ -225,12 +227,18 @@ window.gerarContrato = (function () {
     var repr = String(C.representante || '').trim();
     var semRepr = !repr || /^(o pr[óo]prio|ele mesmo|eu mesmo|n\/a|-)$/i.test(repr);
 
-    paragrafo('CONTRATADA: ' + C.nome + (ehEmpresa ? ', inscrita sob o ' : ', inscrito sob o ') +
-      C.documento + ', com endereço em ' + C.endereco +
+    var docEmpresa = String(C.documento || '').trim();
+    var temDocEmpresa = docEmpresa && !/COLE AQUI/i.test(docEmpresa);
+
+    paragrafo('CONTRATADA: ' + C.nome +
+      (temDocEmpresa ? (ehEmpresa ? ', inscrita sob o ' : ', inscrito sob o ') + docEmpresa : '') +
+      ', com endereço em ' + C.endereco +
       (semRepr ? '' : ', neste ato representada por ' + repr) + '.');
 
-    paragrafo('CONTRATANTE: ' + orc.cliente_nome + ', inscrito sob o ' +
-      orc.cliente_documento + ', com endereço em ' + orc.cliente_endereco +
+    var docCliente = String(orc.cliente_documento || '').trim();
+    paragrafo('CONTRATANTE: ' + orc.cliente_nome +
+      (docCliente ? ', inscrito sob o ' + docCliente : '') +
+      ', com endereço em ' + orc.cliente_endereco +
       (orc.cliente_telefone ? ', telefone ' + orc.cliente_telefone : '') + '.');
 
     paragrafo('As partes acima, de comum acordo, celebram o presente contrato, ' +
@@ -441,8 +449,8 @@ window.gerarContrato = (function () {
 
     doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
     doc.setTextColor(TINTA_3[0], TINTA_3[1], TINTA_3[2]);
-    doc.text('CONTRATADA  ·  ' + C.documento, M, y);
-    doc.text('CONTRATANTE  ·  ' + orc.cliente_documento, meio + 14, y);
+    doc.text('CONTRATADA' + (temDocEmpresa ? '  ·  ' + docEmpresa : ''), M, y);
+    doc.text('CONTRATANTE' + (docCliente ? '  ·  ' + docCliente : ''), meio + 14, y);
 
     /* ---------------- rodapé em todas as páginas ---------------- */
     var paginas = doc.internal.getNumberOfPages();
