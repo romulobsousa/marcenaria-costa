@@ -304,11 +304,26 @@ window.gerarContrato = (function () {
       paragrafo('Forma de pagamento: ' + orc.forma_pagamento + '.');
     }
 
-    paragrafo('§ 1º O valor acima cobre projeto, materiais, fabricação, entrega e ' +
-      'instalação, e não será reajustado durante a execução, salvo alteração pedida ' +
-      'pelo CONTRATANTE na forma da Cláusula 6ª.');
+    var par = 1;
+
+    /* O desconto do Pix precisa estar escrito como CONDIÇÃO, não só como
+       número: senão o cliente paga no cartão e cobra o mesmo total. */
+    if (desconto > 0 && orc.desconto_pix) {
+      var pct = subtotal ? (desconto / subtotal * 100) : 0;
+      paragrafo('§ ' + (par++) + 'º O desconto de ' + dinheiro(desconto) + ' (' +
+        pct.toFixed(2).replace('.', ',') + '%) acima é concedido para pagamento por Pix. ' +
+        'Optando o CONTRATANTE por outra forma de pagamento, o valor devido passa a ser ' +
+        dinheiro(subtotal) + '.');
+    } else if (desconto > 0) {
+      paragrafo('§ ' + (par++) + 'º O total acima já considera o desconto de ' +
+        dinheiro(desconto) + ', concedido em caráter comercial.');
+    }
+
+    paragrafo('§ ' + (par++) + 'º O valor acima cobre projeto, materiais, fabricação, ' +
+      'entrega e instalação, e não será reajustado durante a execução, salvo alteração ' +
+      'pedida pelo CONTRATANTE na forma da Cláusula 6ª.');
     if (K.multas) {
-      paragrafo('§ 2º Parcela paga com atraso terá multa de 2% e juros de ' +
+      paragrafo('§ ' + (par++) + 'º Parcela paga com atraso terá multa de 2% e juros de ' +
         (K.juros_mes || 1) + '% ao mês, calculados pro rata.');
     }
 
@@ -397,20 +412,42 @@ window.gerarContrato = (function () {
     }
 
     /* ---------------- 9. rescisão ---------------- */
-    titulo('CLÁUSULA 9ª — DA DESISTÊNCIA E DA RESCISÃO');
-    paragrafo('§ 1º Tendo este contrato sido assinado fora do estabelecimento da ' +
-      'CONTRATADA, o CONTRATANTE pode desistir em até 7 (sete) dias corridos contados ' +
-      'da assinatura, com devolução integral do que houver pago, na forma do art. 49 ' +
-      'do Código de Defesa do Consumidor.');
+    /* Desistir é direito do consumidor e não dá para proibir em contrato
+       — cláusula nesse sentido é nula e ainda enfraquece o resto do
+       documento. O que segura de verdade é amarrar a CONSEQUÊNCIA: quem
+       desiste depois que o dinheiro já saiu, devolve o que saiu. */
+    titulo('CLÁUSULA 9ª — DA DESISTÊNCIA');
+    var d = 1;
+
+    paragrafo('§ ' + (d++) + 'º Tendo este contrato sido assinado fora do ' +
+      'estabelecimento da CONTRATADA, o CONTRATANTE pode desistir em até 7 (sete) dias ' +
+      'corridos contados da assinatura, com devolução integral do que houver pago, na ' +
+      'forma do art. 49 do Código de Defesa do Consumidor.');
+
+    paragrafo('§ ' + (d++) + 'º Dentro desse prazo a CONTRATADA não comprará material ' +
+      'nem iniciará a produção, salvo se o próprio CONTRATANTE pedir que se comece ' +
+      'antes. Esse pedido deve ser feito por escrito, valendo mensagem de aplicativo ' +
+      'ou e-mail.');
+
+    paragrafo('§ ' + (d++) + 'º Uma vez iniciada a execução — por ter passado o prazo ' +
+      'do § 1º ou por pedido do CONTRATANTE na forma do § 2º —, a desistência obriga o ' +
+      'CONTRATANTE a ressarcir à CONTRATADA o material já comprado, a mão de obra já ' +
+      'empregada e os demais custos já realizados, todos comprovados. O valor apurado ' +
+      'é abatido do que o CONTRATANTE já houver pago; havendo saldo a favor dele, será ' +
+      'devolvido em até 10 dias.');
+
+    paragrafo('§ ' + (d++) + 'º O material feito sob medida e já produzido fica à ' +
+      'disposição do CONTRATANTE, que o pagou, podendo retirá-lo no prazo de 30 dias. ' +
+      'Peça sob medida não tem como ser reaproveitada em outro projeto, e é por isso ' +
+      'que ela é cobrada ainda que o serviço não se conclua.');
+
     if (K.multas) {
-      paragrafo('§ 2º Passado esse prazo, a parte que desistir pagará à outra multa de ' +
-        (K.multa_rescisao || 20) + '% sobre o valor do contrato, além do custo do ' +
-        'material já comprado e da mão de obra já empregada, comprovados.');
-      paragrafo('§ 3º A multa do § 2º vale igualmente para as duas partes.');
+      paragrafo('§ ' + (d++) + 'º Além do ressarcimento acima, a parte que desistir ' +
+        'pagará à outra multa de ' + (K.multa_rescisao || 20) + '% sobre o valor do ' +
+        'contrato. A multa vale igualmente para as duas partes.');
     } else {
-      paragrafo('§ 2º Passado esse prazo, a parte que desistir ressarcirá à outra o ' +
-        'material já comprado e a mão de obra já empregada até ali, mediante ' +
-        'comprovação. Não há multa de desistência para nenhuma das partes.');
+      paragrafo('§ ' + (d++) + 'º Não há multa de desistência para nenhuma das partes: ' +
+        'o que se cobra é o que efetivamente se gastou, mediante comprovação.');
     }
 
     /* ---------------- 10. foro ---------------- */

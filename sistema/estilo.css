@@ -237,6 +237,12 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: .7; }
 }
 .linha-total--grande strong { font-size: 1.4rem; color: var(--latao); font-weight: 600; }
 .campo--desconto { margin: 6px 0 4px; }
+
+/* caixinha de marcar: só aparece quando faz sentido */
+.marcar { display: flex; gap: 8px; align-items: flex-start; margin: 2px 0 6px; cursor: pointer; }
+.marcar input { width: 16px; height: 16px; margin-top: 2px; flex: none; accent-color: var(--latao); }
+.marcar span { font-size: .82rem; color: var(--ink-2); line-height: 1.35; }
+.marcar i { display: block; font-style: normal; font-size: .74rem; color: var(--ink-3); }
 .salvo { font-size: .78rem; color: var(--ink-3); margin: 12px 0 12px; text-align: center; min-height: 1.2em; }
 
 /* ---------- feedback ---------- */

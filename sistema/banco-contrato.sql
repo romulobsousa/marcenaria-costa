@@ -14,3 +14,8 @@ alter table public.orcamentos
 -- contrato" e para o histórico, não para travar nada.
 alter table public.orcamentos
   add column if not exists contrato_em timestamptz;
+
+-- O desconto é "no Pix" ou é comercial? O contrato escreve de um jeito
+-- ou de outro, e quem decide é a caixinha marcada no orçamento.
+alter table public.orcamentos
+  add column if not exists desconto_pix boolean not null default false;

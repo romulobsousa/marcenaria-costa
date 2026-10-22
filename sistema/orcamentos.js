@@ -185,7 +185,7 @@
       cliente_nome: '', cliente_telefone: '', cliente_email: '', cliente_endereco: '',
       cliente_documento: '',
       itens: [{ descricao: '', detalhes: '', qtd: 1, valor: 0 }],
-      desconto: 0,
+      desconto: 0, desconto_pix: false,
       prazo_entrega: p.prazo_entrega || '',
       forma_pagamento: p.forma_pagamento || '',
       observacoes: p.observacoes || '',
@@ -235,6 +235,7 @@
     $('#c-validade').value = o.validade_dias || 15;
     $('#c-obs').value = o.observacoes || '';
     $('#c-desconto').value = o.desconto || 0;
+    $('#c-desconto-pix').checked = !!o.desconto_pix;
     $('#sel-status').value = o.status || 'rascunho';
     $('#estado-salvo').textContent = ehNovo ? 'Ainda não salvo' : '';
 
@@ -329,6 +330,13 @@
     var desc = Number($('#c-desconto').value) || 0;
     $('#t-subtotal').textContent = dinheiro(sub);
     $('#t-total').textContent = dinheiro(Math.max(0, sub - desc));
+
+    // sem desconto não há o que marcar; escondido, a caixinha não confunde
+    $('#rot-desconto-pix').hidden = desc <= 0;
+    if (desc <= 0 && atual.desconto_pix) {
+      atual.desconto_pix = false;
+      $('#c-desconto-pix').checked = false;
+    }
     pintarConta();
   }
 
@@ -463,6 +471,9 @@
   $('#c-desconto').addEventListener('input', function (e) {
     atual.desconto = parseFloat(e.target.value) || 0; sujar(); recalcular();
   });
+  $('#c-desconto-pix').addEventListener('change', function (e) {
+    atual.desconto_pix = e.target.checked; sujar();
+  });
   $('#sel-status').addEventListener('change', function (e) {
     atual.status = e.target.value;
 
@@ -506,6 +517,7 @@
         return (it.descricao || '').trim() || Number(it.valor);
       })),
       desconto: Number(atual.desconto) || 0,
+      desconto_pix: !!atual.desconto_pix,
       prazo_entrega: atual.prazo_entrega, forma_pagamento: atual.forma_pagamento,
       observacoes: atual.observacoes, validade_dias: Number(atual.validade_dias) || 15,
       status: atual.status,
