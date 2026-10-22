@@ -51,6 +51,11 @@ window.CONFIG_ORCAMENTO = {
       representante: 'COLE AQUI o nome de quem assina pela marcenaria'
     },
 
+    /* Multas: desligadas por escolha sua. Ligando (true), voltam a sair
+       no contrato a multa de atraso da marcenaria, a de atraso de
+       pagamento do cliente e a de rescisão, com os números abaixo. */
+    multas:          false,
+
     garantia_meses:  12,     // garantia contra defeito de fabricação e montagem
     multa_atraso:    0.5,    // % por dia de atraso, limitada ao teto abaixo
     teto_atraso:     10,     // % — até onde a multa de atraso pode chegar

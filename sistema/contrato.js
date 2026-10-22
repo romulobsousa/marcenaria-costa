@@ -299,8 +299,10 @@ window.gerarContrato = (function () {
     paragrafo('§ 1º O valor acima cobre projeto, materiais, fabricação, entrega e ' +
       'instalação, e não será reajustado durante a execução, salvo alteração pedida ' +
       'pelo CONTRATANTE na forma da Cláusula 6ª.');
-    paragrafo('§ 2º Parcela paga com atraso terá multa de 2% e juros de ' +
-      (K.juros_mes || 1) + '% ao mês, calculados pro rata.');
+    if (K.multas) {
+      paragrafo('§ 2º Parcela paga com atraso terá multa de 2% e juros de ' +
+        (K.juros_mes || 1) + '% ao mês, calculados pro rata.');
+    }
 
     /* ---------------- 3. prazo ---------------- */
     titulo('CLÁUSULA 3ª — DO PRAZO');
@@ -366,13 +368,25 @@ window.gerarContrato = (function () {
     paragrafo('§ 3º Chamado de garantia será atendido em até 10 dias úteis do aviso ' +
       'do CONTRATANTE.');
 
-    /* ---------------- 8. atraso e multas ---------------- */
+    /* ---------------- 8. atraso ---------------- */
+    /* Sem multa (contrato.multas = false) a cláusula não some: ela diz o
+       que acontece, que é o que a lei já garante ao consumidor. Vale
+       escrever — assim o cliente sabe o caminho e não inventa outro. */
     titulo('CLÁUSULA 8ª — DO ATRASO');
-    paragrafo('Atrasando a entrega por causa que lhe seja imputável, a CONTRATADA ' +
-      'pagará multa de ' + (K.multa_atraso || 0.5) + '% do valor do contrato por dia ' +
-      'de atraso, limitada a ' + (K.teto_atraso || 10) + '% do total. Não contam como ' +
-      'atraso os dias de suspensão previstos no § 2º da Cláusula 3ª, nem caso fortuito ' +
-      'ou força maior.');
+    if (K.multas) {
+      paragrafo('Atrasando a entrega por causa que lhe seja imputável, a CONTRATADA ' +
+        'pagará multa de ' + (K.multa_atraso || 0.5) + '% do valor do contrato por dia ' +
+        'de atraso, limitada a ' + (K.teto_atraso || 10) + '% do total. Não contam como ' +
+        'atraso os dias de suspensão previstos no § 2º da Cláusula 3ª, nem caso fortuito ' +
+        'ou força maior.');
+    } else {
+      paragrafo('Havendo atraso por causa imputável à CONTRATADA, ela comunicará o ' +
+        'CONTRATANTE e informará a nova data. O CONTRATANTE poderá, à sua escolha, ' +
+        'aguardar o cumprimento na nova data ou desfazer o contrato, recebendo de volta ' +
+        'tudo o que houver pago, na forma do art. 35 do Código de Defesa do Consumidor. ' +
+        'Não contam como atraso os dias de suspensão previstos no § 2º da Cláusula 3ª, ' +
+        'nem caso fortuito ou força maior.');
+    }
 
     /* ---------------- 9. rescisão ---------------- */
     titulo('CLÁUSULA 9ª — DA DESISTÊNCIA E DA RESCISÃO');
@@ -380,10 +394,16 @@ window.gerarContrato = (function () {
       'CONTRATADA, o CONTRATANTE pode desistir em até 7 (sete) dias corridos contados ' +
       'da assinatura, com devolução integral do que houver pago, na forma do art. 49 ' +
       'do Código de Defesa do Consumidor.');
-    paragrafo('§ 2º Passado esse prazo, a parte que desistir pagará à outra multa de ' +
-      (K.multa_rescisao || 20) + '% sobre o valor do contrato, além do custo do ' +
-      'material já comprado e da mão de obra já empregada, comprovados.');
-    paragrafo('§ 3º A multa do § 2º vale igualmente para as duas partes.');
+    if (K.multas) {
+      paragrafo('§ 2º Passado esse prazo, a parte que desistir pagará à outra multa de ' +
+        (K.multa_rescisao || 20) + '% sobre o valor do contrato, além do custo do ' +
+        'material já comprado e da mão de obra já empregada, comprovados.');
+      paragrafo('§ 3º A multa do § 2º vale igualmente para as duas partes.');
+    } else {
+      paragrafo('§ 2º Passado esse prazo, a parte que desistir ressarcirá à outra o ' +
+        'material já comprado e a mão de obra já empregada até ali, mediante ' +
+        'comprovação. Não há multa de desistência para nenhuma das partes.');
+    }
 
     /* ---------------- 10. foro ---------------- */
     titulo('CLÁUSULA 10ª — DO FORO');
