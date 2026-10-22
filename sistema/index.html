@@ -161,6 +161,7 @@
             <option value="recusado">Recusado</option>
           </select>
           <button class="btn btn--fantasma" type="button" id="btn-pdf">Baixar PDF</button>
+          <button class="btn btn--fantasma" type="button" id="btn-contrato">Contrato</button>
           <button class="btn btn--zap" type="button" id="btn-zap">Enviar no WhatsApp</button>
         </div>
       </header>
@@ -174,6 +175,8 @@
                 <input type="text" id="c-nome" placeholder="Maria Silva"></label>
               <label class="campo"><span class="campo__rot">WhatsApp</span>
                 <input type="tel" id="c-telefone" placeholder="(41) 99999-9999"></label>
+              <label class="campo"><span class="campo__rot">CPF ou CNPJ <i>só o contrato exige</i></span>
+                <input type="text" id="c-documento" placeholder="000.000.000-00"></label>
               <label class="campo"><span class="campo__rot">E-mail <i>opcional</i></span>
                 <input type="email" id="c-email"></label>
               <label class="campo"><span class="campo__rot">Endereço <i>opcional</i></span>
@@ -423,14 +426,15 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="/sistema/config.js?v=db571d05"></script>
+<script src="/sistema/config.js?v=a1b9f4c8"></script>
 <script src="/sistema/logo-dados.js?v=bde4a42a"></script>
+<script src="/sistema/contrato.js?v=985f710d"></script>
 <script src="/sistema/pdf.js?v=b0af39e2"></script>
 <script src="/sistema/nucleo.js?v=688a0a8e"></script>
-<script src="/sistema/orcamentos.js?v=4370b709"></script>
+<script src="/sistema/orcamentos.js?v=c94a9224"></script>
 <script src="/sistema/agenda.js?v=d986d49d"></script>
 <script src="/sistema/cobranca.js?v=c0d62283"></script>
-<script src="/sistema/historico.js?v=53ea8d7f"></script>
+<script src="/sistema/historico.js?v=1723ddd5"></script>
 <script src="/sistema/equipe.js?v=c12636ad"></script>
 <script src="/sistema/inicio.js?v=cf926cb4"></script>
 </body>

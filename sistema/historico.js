@@ -55,7 +55,8 @@
 
     orcamento_margem:    ['Mexeu na margem',          'orcamento', 'aviso'],
     orcamento_arquivado: ['Limpou da tela inicial',   'orcamento', 'neutro'],
-    orcamento_entregue:  ['Entregou',                 'orcamento', 'bom']
+    orcamento_entregue:  ['Entregou',                 'orcamento', 'bom'],
+    orcamento_contrato:  ['Gerou o contrato',         'orcamento', 'novo']
   };
 
   function daAcao(a) { return ACOES[a] || [a.replace(/_/g, ' '), 'outro', 'neutro']; }

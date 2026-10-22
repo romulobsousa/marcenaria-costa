@@ -183,6 +183,7 @@
     return Object.assign({
       id: null, numero: null, status: 'rascunho',
       cliente_nome: '', cliente_telefone: '', cliente_email: '', cliente_endereco: '',
+      cliente_documento: '',
       itens: [{ descricao: '', detalhes: '', qtd: 1, valor: 0 }],
       desconto: 0,
       prazo_entrega: p.prazo_entrega || '',
@@ -227,6 +228,7 @@
     $('#c-nome').value = o.cliente_nome || '';
     $('#c-telefone').value = o.cliente_telefone || '';
     $('#c-email').value = o.cliente_email || '';
+    $('#c-documento').value = o.cliente_documento || '';
     $('#c-endereco').value = o.cliente_endereco || '';
     $('#c-prazo').value = o.prazo_entrega || '';
     $('#c-pagamento').value = o.forma_pagamento || '';
@@ -450,6 +452,7 @@
   }
 
   [['#c-nome','cliente_nome'], ['#c-telefone','cliente_telefone'], ['#c-email','cliente_email'],
+   ['#c-documento','cliente_documento'],
    ['#c-endereco','cliente_endereco'], ['#c-prazo','prazo_entrega'], ['#c-pagamento','forma_pagamento'],
    ['#c-obs','observacoes']].forEach(function (par) {
     $(par[0]).addEventListener('input', function (e) { atual[par[1]] = e.target.value; sujar(); });
@@ -498,6 +501,7 @@
       user_id: App.usuario.id,
       cliente_nome: atual.cliente_nome, cliente_telefone: atual.cliente_telefone,
       cliente_email: atual.cliente_email, cliente_endereco: atual.cliente_endereco,
+      cliente_documento: atual.cliente_documento || '',
       itens: garantirIds(atual.itens.filter(function (it) {
         return (it.descricao || '').trim() || Number(it.valor);
       })),
@@ -551,6 +555,33 @@
       App.recarregar(true);
       App.ir('orcamentos');
     });
+  });
+
+  /* ---------------- contrato ---------------- */
+  /* O contrato nasce do orçamento: cliente, móveis, valor, pagamento e
+     prazo já estão todos aqui. O que falta, o sistema diz o que é em
+     vez de imprimir um contrato com buraco no meio. */
+  $('#btn-contrato').addEventListener('click', function () {
+    garantirSalvo().then(function (o) {
+      var r;
+      try {
+        r = window.gerarContrato(o);
+      } catch (e) {
+        App.avisar(e.message, 'erro');
+        if (e.faltas && e.faltas.some(function (f) { return /cliente/i.test(f); })) {
+          $('#c-documento').focus();
+        }
+        return;
+      }
+
+      App.avisar('Contrato gerado: ' + r.nome);
+      App.registrar('orcamento_contrato', rotulo(o), '', o.id);
+
+      // marca a data, sem atrapalhar se a coluna ainda não existir
+      App.sb.from('orcamentos').update({ contrato_em: new Date().toISOString() })
+        .eq('id', o.id).then(function () { App.recarregar(true); })
+        .catch(function () {});
+    }).catch(function () {});
   });
 
   /* Tirado da tela inicial pelo botão "Limpar a tela": aqui dá para

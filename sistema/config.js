@@ -33,6 +33,32 @@ window.CONFIG_ORCAMENTO = {
     documento: ''          // CNPJ ou CPF, se quiser que apareça
   },
 
+  /* =====================================================================
+     CONTRATO — preencha uma vez, vale para todos
+
+     Quem assina com o cliente é a marcenaria dos irmãos, então os dados
+     aqui são os DELES: é o nome e o documento deles que vão no papel, e
+     é deles a responsabilidade pela entrega e pela garantia.
+
+     Sem esses dados preenchidos o sistema não gera o contrato — um
+     contrato com "COLE AQUI" no lugar do CNPJ não serve para nada.
+     ===================================================================== */
+  contrato: {
+    contratada: {
+      nome:         'COLE AQUI a razão social da marcenaria',
+      documento:    'COLE AQUI o CNPJ (ou CPF, se não tiver empresa)',
+      endereco:     'COLE AQUI rua, número, bairro, cidade/UF, CEP',
+      representante: 'COLE AQUI o nome de quem assina pela marcenaria'
+    },
+
+    garantia_meses:  12,     // garantia contra defeito de fabricação e montagem
+    multa_atraso:    0.5,    // % por dia de atraso, limitada ao teto abaixo
+    teto_atraso:     10,     // % — até onde a multa de atraso pode chegar
+    multa_rescisao:  20,     // % se uma das partes desistir depois de assinado
+    juros_mes:       1,      // % ao mês sobre parcela em atraso
+    foro:            'Curitiba, Paraná'
+  },
+
   /* ---- textos que já vêm preenchidos num orçamento novo ---- */
   padroes: {
     validade_dias:   15,
