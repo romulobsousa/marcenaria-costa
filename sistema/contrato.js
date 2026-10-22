@@ -219,11 +219,17 @@ window.gerarContrato = (function () {
     /* ---------------- as partes ---------------- */
     titulo('AS PARTES');
 
-    paragrafo('CONTRATADA: ' + C.nome + ', inscrita sob o ' + C.documento +
-      ', com endereço em ' + C.endereco + ', neste ato representada por ' +
-      C.representante + '.');
+    /* empresa se escreve "inscrita", pessoa "inscrito" — e quem assina
+       por si mesmo não precisa de representante nenhum */
+    var ehEmpresa = /CNPJ/i.test(C.documento);
+    var repr = String(C.representante || '').trim();
+    var semRepr = !repr || /^(o pr[óo]prio|ele mesmo|eu mesmo|n\/a|-)$/i.test(repr);
 
-    paragrafo('CONTRATANTE: ' + orc.cliente_nome + ', inscrito(a) sob o ' +
+    paragrafo('CONTRATADA: ' + C.nome + (ehEmpresa ? ', inscrita sob o ' : ', inscrito sob o ') +
+      C.documento + ', com endereço em ' + C.endereco +
+      (semRepr ? '' : ', neste ato representada por ' + repr) + '.');
+
+    paragrafo('CONTRATANTE: ' + orc.cliente_nome + ', inscrito sob o ' +
       orc.cliente_documento + ', com endereço em ' + orc.cliente_endereco +
       (orc.cliente_telefone ? ', telefone ' + orc.cliente_telefone : '') + '.');
 
@@ -265,6 +271,12 @@ window.gerarContrato = (function () {
     paragrafo('§ 2º Cor, acabamento, ferragens e puxadores são os definidos no ' +
       'projeto aprovado. Pequenas variações de tonalidade da madeira e do MDF são ' +
       'próprias do material e não caracterizam defeito.');
+
+    /* o que as partes combinaram à parte entra como parágrafo do objeto:
+       se foi combinado, tem que estar escrito */
+    if (String(orc.observacoes || '').trim()) {
+      paragrafo('§ 3º Fica ainda acordado: ' + String(orc.observacoes).trim());
+    }
 
     /* ---------------- 2. preço ---------------- */
     var desconto = Number(orc.desconto) || 0;

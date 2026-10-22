@@ -45,9 +45,9 @@ window.CONFIG_ORCAMENTO = {
      ===================================================================== */
   contrato: {
     contratada: {
-      nome:         'COLE AQUI a razão social da marcenaria',
-      documento:    'COLE AQUI o CNPJ (ou CPF, se não tiver empresa)',
-      endereco:     'COLE AQUI rua, número, bairro, cidade/UF, CEP',
+      nome:         'S R Costa Mobiliário Corporativo',
+      documento:    'CNPJ 24.272.654/0001-32',
+      endereco:     'Rua Coronel Joaquim Antônio de Azevedo, 244, Sítio Cercado, Curitiba/PR',
       representante: 'COLE AQUI o nome de quem assina pela marcenaria'
     },
 
